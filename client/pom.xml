@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>itmo.lab6</groupId>
-    <artifactId>itmo.lab6</artifactId>
-	<name>lab6</name>
+    <groupId>itmo.lab7</groupId>
+    <artifactId>itmo.lab7</artifactId>
+    <name>lab7</name>
     <dependencies>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -15,36 +15,57 @@
         </dependency>
         <dependency>
             <groupId>itmo.chunker</groupId>
-            <artifactId>chunker</artifactId>
+            <artifactId>itmo.chunker</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/chunker-1.0.jar</systemPath>
         </dependency>
     </dependencies>
+
     <version>1.0</version>
-	<packaging>jar</packaging>
-	<properties>
-		<java.version>1.8</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>	
-  </properties>
-  <build>
-        <finalName>lab6</finalName>
-        <defaultGoal>package</defaultGoal>
+    <packaging>jar</packaging>
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+    <build>
+        <finalName>server</finalName>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-				<version>3.0.0</version>
-				<configuration>
-			      <archive>
-				    <manifest>
-					  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-					  <addClasspath>true</addClasspath>
-					  <mainClass>itmo.lab6.ClientMain</mainClass>
-				    </manifest>
-				  </archive>
-				</configuration>
-	        </plugin>
-	    </plugins>
-</build>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>itmo.lab7.ClientMain</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
