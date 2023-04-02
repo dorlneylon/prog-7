@@ -25,7 +25,7 @@ public class ClientMain {
         try {
             core.run();
         } catch (NoSuchElementException e) {
-            System.out.printf("Ctrl-D detected.\n Shutting the client down...\n", e.getMessage());
+            System.out.println("Ctrl-D detected.\n Shutting the client down...");
         }
     }
 }

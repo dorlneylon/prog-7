@@ -1,15 +1,16 @@
 package itmo.lab6.server;
 
+import itmo.chunker.ChuckReceiver;
 import itmo.lab6.basic.moviecollection.MovieCollection;
 import itmo.lab6.utils.SizedStack;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,7 +19,6 @@ import static itmo.lab6.commands.CommandHandler.handlePacket;
 import static itmo.lab6.commands.CommandHandler.setChannel;
 
 public class UdpServer {
-    private static final int BUFFER_SIZE = 1025;
     public static MovieCollection collection;
     public static HashMap<ClientAddress, SizedStack<String>> commandHistory = new HashMap<>();
     private final int port;
@@ -40,7 +40,7 @@ public class UdpServer {
             selector = Selector.open();
             datagramChannel.register(selector, SelectionKey.OP_READ);
             ServerLogger.getLogger().info("Starting server on port " + port);
-            Map<InetSocketAddress, ByteArrayOutputStream> byteStreams = new HashMap<>();
+            Map<InetSocketAddress, ChuckReceiver> chunkLists = new HashMap<>();
             while (true) {
                 selector.select();
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -53,29 +53,29 @@ public class UdpServer {
                     if (key.isReadable()) {
                         DatagramChannel keyChannel = (DatagramChannel) key.channel();
                         setChannel(keyChannel);
-                        ByteBuffer buffer = ByteBuffer.allocate(1025);
+                        ByteBuffer buffer = ByteBuffer.allocate(1028);
                         InetSocketAddress inetSocketAddress = (InetSocketAddress) keyChannel.receive(buffer);
                         ClientAddress clientAddress = new ClientAddress(inetSocketAddress.getAddress(), inetSocketAddress.getPort());
                         if (!commandHistory.containsKey(clientAddress)) {
                             commandHistory.put(clientAddress, new SizedStack<>(7));
                         }
 
-                        ByteArrayOutputStream byteStream = byteStreams.get(inetSocketAddress);
-                        if (byteStream == null) {
-                            byteStream = new ByteArrayOutputStream();
-                            byteStreams.put(inetSocketAddress, byteStream);
+                        ChuckReceiver receiver = chunkLists.get(inetSocketAddress);
+                        if (receiver == null) {
+                            receiver = new ChuckReceiver();
+                            chunkLists.put(inetSocketAddress, receiver);
                         }
-                        boolean hasNext = buffer.array()[buffer.limit() - 1] == 1;
-                        byteStream.write(buffer.array(), 0, buffer.limit() - 1);
-                        if (!hasNext) {
+
+                        receiver.add(Arrays.copyOfRange(buffer.array(), 0, buffer.position()));
+                        if (receiver.isReceived()) {
                             // We've received the last packet, so handle the message
                             try {
-                                handlePacket(inetSocketAddress, byteStream.toByteArray());
+                                handlePacket(inetSocketAddress, receiver.getAllChunks());
                             } catch (Exception e) {
                                 keyChannel.send(ByteBuffer.wrap("ERROR: Something went wrong...".getBytes()), inetSocketAddress);
                                 ServerLogger.getLogger().warning(e.toString());
                             }
-                            byteStreams.remove(inetSocketAddress);
+                            chunkLists.remove(inetSocketAddress);
                         }
                     }
                 }
