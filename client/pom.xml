@@ -15,10 +15,8 @@
         </dependency>
         <dependency>
             <groupId>itmo.chunker</groupId>
-            <artifactId>itmo.chunker</artifactId>
+            <artifactId>chunker</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/chunker-1.0.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -30,7 +28,7 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <build>
-        <finalName>server</finalName>
+        <finalName>client</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -63,6 +61,28 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-external-non-maven-jar-MWS-Client-into-local-maven-repo</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <repositoryLayout>default</repositoryLayout>
+                            <groupId>itmo.chunker</groupId>
+                            <artifactId>chunker</artifactId>
+                            <version>1.0</version>
+                            <file>${project.basedir}/../chunked_sender/target/chunker-1.0.jar</file>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
