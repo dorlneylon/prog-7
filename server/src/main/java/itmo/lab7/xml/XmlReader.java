@@ -88,7 +88,7 @@ public class XmlReader extends XmlAction {
     private Object parseItem(Node node) throws ClassNotFoundException {
         NodeList innerNodes = node.getChildNodes();
         // Getting builder's clazz
-        Class<?> builderClass = Class.forName("%s.%sBuilder".formatted("itmo.lab6.basic.baseclasses.builders", StringUtils.capitalize(node.getNodeName())));
+        Class<?> builderClass = Class.forName("%s.%sBuilder".formatted("itmo.lab7.basic.baseclasses.builders", StringUtils.capitalize(node.getNodeName())));
         Builder builder;
         try {
             builder = (Builder) builderClass.getDeclaredConstructor().newInstance();
