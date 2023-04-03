@@ -2,6 +2,7 @@ package itmo.lab7.connection;
 
 import itmo.chunker.ChuckReceiver;
 import itmo.chunker.Chunker;
+import itmo.lab7.basic.utils.terminal.Colors;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -67,18 +68,40 @@ public class Connector {
     /**
      * Sends dataBytes to remote server
      *
-     * @param dataBytes dataBytes to send
      * @throws Exception sending exceptions
      */
     public void send(byte[] dataBytes) throws Exception {
         Chunker dataChunker = new Chunker(dataBytes, chunkSize);
         var chunkIterator = dataChunker.newIterator();
+        int c = 0;
         while (chunkIterator.hasNext()) {
+            if (c++ % 100 == 0) {
+                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, c, (short)((int)Math.ceil((double)dataBytes.length / (double)this.chunkSize)));
+                Thread.sleep(100);
+            }
             byte[] chunk = chunkIterator.next();
             DatagramPacket dataPacket = new DatagramPacket(chunk, chunk.length, this.address, port);
             socket.send(dataPacket);
         }
     }
+
+//    public void send(byte[] bytes) throws Exception {
+//        int numChunks = (int) Math.ceil((double) bytes.length / chunkSize);
+//        for (int i = 0; i < numChunks; i++) {
+//            int offset = i * chunkSize;
+//            int length = Math.min(bytes.length - offset, chunkSize);
+//            byte[] chunk = new byte[length + 1];
+//            chunk[length] = (numChunks == 1 || i + 1 == numChunks) ? (byte) 0 : (byte) 1; // has next flag
+//            System.arraycopy(bytes, offset, chunk, 0, length);
+//            DatagramPacket datagramPacket = new DatagramPacket(chunk, length + 1, this.address, port);
+//            socket.send(datagramPacket);
+//            if (i != 0 && i % 100 == 0) {
+//                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, i + 1, numChunks);
+//                Thread.sleep(100);
+//            }
+//        }
+//        System.out.print("");
+//    }
 
     /**
      * Receives bytes from remote server and transforms them into string

@@ -50,7 +50,6 @@ public class ScriptExecutor {
      * @return this
      */
     private ScriptExecutor readScript(File scriptFile) {
-        int insertsCount = 0;
         List<String> lines;
         try {
             lines = Files.readAllLines(scriptFile.toPath(), StandardCharsets.UTF_8);
@@ -74,18 +73,7 @@ public class ScriptExecutor {
             }
 
             if (Set.of(CommandType.SHOW, CommandType.PRINT_ASCENDING, CommandType.PRINT_DESCENDING).contains(commandType)) {
-                int size = insertsCount;
-
-                try {
-                    size += getCollectionSize();
-                } catch (Exception e) {
-                    continue;
-                }
-                for (int i = 0; i * 20 < size; i++) {
-                    Command cmd = CommandFactory.createCommand(commandType, new String[]{String.valueOf(i * 20)});
-                    if (cmd != null) commandQueue.add(cmd);
-                }
-
+                commandQueue.add(CommandFactory.createCommand(commandType, new String[]{"true"}));
                 continue;
             }
 
@@ -99,7 +87,6 @@ public class ScriptExecutor {
                 args[0] = line.split(" ")[1];
                 System.arraycopy(movieArgs, 0, args, 1, movieArgs.length);
                 index += 13;
-                if (commandType.equals(CommandType.INSERT)) insertsCount++;
             }
             
             Command cmd = CommandFactory.createCommand(commandType, args);

@@ -16,6 +16,7 @@ import static java.lang.Math.min;
 public class ShowCommand implements Action {
 
     private final int ind;
+    private boolean isScript = false;
 
     public ShowCommand(Integer ind) {
         this.ind = ind;
@@ -25,10 +26,18 @@ public class ShowCommand implements Action {
         this.ind = 0;
     }
 
+    public ShowCommand(Boolean isScript) {
+        this.ind = 0;
+        this.isScript = isScript;
+    }
+
     @Override
     public Response run() {
         if (collection.size() == 0)
             return new Response("Collection is empty", ResponseType.SUCCESS);
+
+        String test = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.values()).toList().toString().replace("., ", ",\n"));
+        if (isScript) return new Response(test.substring(1, test.length()-1), ResponseType.INFO);
 
         String message = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.values()).toList()
                 .subList(ind, min(ind+20, collection.size())).toString()

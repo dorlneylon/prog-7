@@ -56,7 +56,11 @@ public final class CommandFactory {
                 if (args.length == 0) {
                     yield new Command(type);
                 }
-                yield new Command(type, Integer.parseInt(args[0]));
+                try {
+                    yield new Command(type, Boolean.parseBoolean(args[0]));
+                } catch (Exception e) {
+                    yield new Command(type, Integer.parseInt(args[0]));
+                }
             }
             case HISTORY -> {
                 System.out.println(commandsHistory.stream().map(CommandType::name).reduce((s1, s2) -> s1 + "\n" + s2).orElse("No commands were executed."));
