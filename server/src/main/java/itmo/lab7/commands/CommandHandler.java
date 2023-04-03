@@ -16,6 +16,7 @@ import java.util.logging.Level;
 
 import static itmo.lab7.server.UdpServer.collection;
 import static itmo.lab7.server.UdpServer.commandHistory;
+import static itmo.lab7.utils.CollectionValidator.isValidHistoryInput;
 
 public class CommandHandler {
     private static DatagramChannel channel;
@@ -38,7 +39,7 @@ public class CommandHandler {
             channel.send(ByteBuffer.wrap(chunk), sender);
         }
 
-        if (!command.getCommandType().equals(CommandType.SERVICE)) {
+        if (isValidHistoryInput(command)) {
             commandHistory.get(new ClientAddress(sender.getAddress(), sender.getPort())).push(command.getCommandType().toString());
         }
 

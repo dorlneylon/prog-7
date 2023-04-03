@@ -29,6 +29,8 @@ public final class Command implements Serializable {
         this.arguments = arguments;
     }
 
+    public Object[] getArguments() { return arguments; }
+
     /**
      * В этом методе вызывается конструктор у нужной нам команды. Затем она исполняется.
      */

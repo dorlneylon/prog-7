@@ -1,3 +1,5 @@
 .idea
+server1.xml
+*.iml
 target
 *.log*
