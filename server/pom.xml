@@ -18,6 +18,11 @@
             <artifactId>chunker</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.27</version>
+        </dependency>
     </dependencies>
 
     <version>1.0</version>

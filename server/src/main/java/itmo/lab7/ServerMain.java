@@ -1,6 +1,7 @@
 package itmo.lab7;
 
 import itmo.lab7.basic.moviecollection.MovieCollection;
+import itmo.lab7.database.Database;
 import itmo.lab7.server.UdpServer;
 import itmo.lab7.utils.config.Config;
 import itmo.lab7.xml.Xml;
@@ -8,6 +9,7 @@ import itmo.lab7.xml.Xml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 
 
 public class ServerMain {
@@ -16,6 +18,10 @@ public class ServerMain {
      */
     public static String collectionFileName;
     private static Integer serverPort;
+
+    private static final String url;
+    private static final String user;
+    private static final String password;
 
     static {
         Config config = null;
@@ -36,6 +42,9 @@ public class ServerMain {
             // Setting up the default port
             serverPort = 5050;
         }
+        url = config.get("db_url");
+        user = config.get("user");
+        password = config.get("password");
     }
 
     public static void main(String[] args) {
@@ -47,7 +56,19 @@ public class ServerMain {
             System.err.println("New collection file will be created automatically after a few changes.");
             collection = new MovieCollection();
         }
-        UdpServer server = new UdpServer(collection, serverPort);
+        Database db = null;
+        try {
+            db = new Database(url, user, password);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+        // db.addNewUser("kxrxh", "kxrxh");
+        System.out.println(db.userSingIn("kxrxh", "kxrxh"));
+//        db.addCommandToHistory("kxrxh", "INSERT");
+//        db.addCommandToHistory("kxrxh", "ADD");
+//        System.out.println(Arrays.toString(db.getCommandHistory("kxrxh")));
+        UdpServer server = new UdpServer(db, collection, serverPort);
         server.run();
     }
 }

@@ -2,6 +2,7 @@ package itmo.lab7.server;
 
 import itmo.chunker.ChuckReceiver;
 import itmo.lab7.basic.moviecollection.MovieCollection;
+import itmo.lab7.database.Database;
 import itmo.lab7.utils.types.SizedStack;
 
 import java.io.IOException;
@@ -40,6 +41,9 @@ public class UdpServer {
     //Declare a DatagramChannel object
     private DatagramChannel datagramChannel;
 
+    // Remote database
+    private static Database database = null;
+
     //Declare a Selector object
     private Selector selector;
 
@@ -50,12 +54,14 @@ public class UdpServer {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     /**
-     * Constructor for UdpServer
+     * Constructor for the UdpServer class.
      *
-     * @param collection The MovieCollection to be used by the server
-     * @param port       The port to be used by the server
+     * @param database   The database to be used by the server.
+     * @param collection The collection of movies to be used by the server.
+     * @param port       The port to be used by the server.
      */
-    public UdpServer(MovieCollection collection, int port) {
+    public UdpServer(Database database, MovieCollection collection, int port) {
+        UdpServer.database = database;
         this.port = port;
         UdpServer.collection = collection;
     }
@@ -131,7 +137,21 @@ public class UdpServer {
         }
     }
 
+    /**
+     * Gets the map of InetSocketAddress and ChuckReceiver objects.
+     *
+     * @return The map of InetSocketAddress and ChuckReceiver objects.
+     */
     public static Map<InetSocketAddress, ChuckReceiver> getChunkLists() {
         return chunkLists;
+    }
+
+    /**
+     * Returns the Database instance
+     *
+     * @return the Database instance
+     */
+    public static Database getDatabase() {
+        return database;
     }
 }

@@ -21,7 +21,7 @@ public abstract class MHMap<K, V> {
     /**
      * the map itself
      */
-    private HashMap<K, V> map;
+    private final HashMap<K, V> map;
 
 
     /**
@@ -50,9 +50,11 @@ public abstract class MHMap<K, V> {
      * @return True if the key-value pair was successfully inserted, false otherwise.
      */
     public boolean insert(K key, V value) {
-        if (!this.map.containsKey(key)) {
-            this.map.put(key, value);
-            return true;
+        synchronized (this.map) {
+            if (!this.map.containsKey(key)) {
+                this.map.put(key, value);
+                return true;
+            }
         }
         return false;
     }
@@ -102,17 +104,6 @@ public abstract class MHMap<K, V> {
     public void removeByValue(V val) {
         this.removeByKey(this.getKey(val));
     }
-
-
-    /**
-     * Assigns the given {@link MHMap} to this {@link MHMap}.
-     *
-     * @param map The {@link MHMap} to assign to this {@link MHMap}.
-     */
-    public void assign(MHMap<K, V> map) {
-        this.map = map.getMap();
-    }
-
 
     /**
      * Retrieves the value associated with the given key.
