@@ -4,7 +4,11 @@ import itmo.lab7.commands.implemented.*;
 
 import java.io.Serializable;
 
+/**
+ * Enum class for CommandType.
+ */
 public enum CommandType implements Serializable {
+    // Enum for the different types of commands
     CLEAR(ClearCommand.class, "clear: clear the collection"),
     EXECUTE_SCRIPT(ExecuteScriptCommand.class, "execute_script <file_name>: read and execute the script from the specified file. The script contains commands in the same form in which they are entered by the user in interactive mode. USE RELATIVE PATHS."),
     EXIT(null, "exit: exit the program"),
@@ -22,19 +26,35 @@ public enum CommandType implements Serializable {
     UPDATE(UpdateCommand.class, "update <id> {element}: update the value of a collection element whose id is equal to the specified"),
     DEFAULT(DefaultCommand.class, ""),
     SERVICE(ServiceCommand.class, "");
+    // Private variables to store the executable class and description of the command
     private final Class<? extends Action> executableClass;
     private final String description;
 
+    // Constructor for the enum
     CommandType(Class<? extends Action> executableClass, String description) {
+        // Set the private variables to the parameters
         this.executableClass = executableClass;
         this.description = description;
     }
 
+
+    /**
+     * Returns the executable class.
+     *
+     * @return The executable class.
+     */
     public Class<? extends Action> getExecutableClass() {
+        // Return the executable class
         return executableClass;
     }
 
+    /**
+     * Returns the description of the object.
+     *
+     * @return The description of the object.
+     */
     public String getDescription() {
+        // Return the description
         return description;
     }
 }

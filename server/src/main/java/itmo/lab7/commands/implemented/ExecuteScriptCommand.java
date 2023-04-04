@@ -7,18 +7,29 @@ import itmo.lab7.server.response.ResponseType;
 
 import java.util.ArrayList;
 
-import static java.lang.Math.min;
-
+/**
+ * ExecuteScriptCommand is a class that implements the Action interface.
+ * It is used to execute a list of commands in a queue.
+ */
 public final class ExecuteScriptCommand implements Action {
 
     private final ArrayList<Command> commandQueue;
-    private final int index;
 
+    /**
+     * Constructor for ExecuteScriptCommand
+     *
+     * @param commandQueue The queue of commands to be executed
+     */
     public ExecuteScriptCommand(ArrayList<Command> commandQueue) {
         this.commandQueue = commandQueue;
-        this.index = 0;
     }
 
+    /**
+     * Executes all commands in the command queue.
+     *
+     * @return A {@link Response} object containing the output of all commands in the command queue,
+     * or an error message if the command queue is empty.
+     */
     @Override
     public Response run() {
         if (commandQueue.isEmpty()) {

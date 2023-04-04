@@ -41,10 +41,7 @@ public class MovieCollection extends MHMap<Long, Movie> {
      * @param key the key to compare with.
      */
     public boolean removeGreater(Long key) {
-        return Arrays.stream(this.values())
-                .filter(movie -> movie.getOscarsInt() > key)
-                .map(movie -> this.removeByKey(movie.getId()))
-                .reduce(false, (a, b) -> a || b);
+        return Arrays.stream(this.values()).filter(movie -> movie.getOscarsInt() > key).map(movie -> this.removeByKey(movie.getId())).reduce(false, (a, b) -> a || b);
     }
 
     public boolean equals(MovieCollection map) {
@@ -56,6 +53,20 @@ public class MovieCollection extends MHMap<Long, Movie> {
     }
 
     /**
+     * Prints the given array of {@link Movie} objects.
+     *
+     * @param movies the array of {@link Movie} objects to print
+     * @return a {@link String} containing the details of the given {@link Movie} objects
+     */
+    private String print(Movie[] movies) {
+        StringBuilder sb = new StringBuilder();
+        for (Movie movie : movies) {
+            sb.append(movie.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
      * sorts the elements of the collection by the number of Oscars received and prints them in a new order.
      *
      * @see Movie
@@ -63,7 +74,7 @@ public class MovieCollection extends MHMap<Long, Movie> {
     @Override
     public String printAscending() {
         Movie[] movies = getSortedMovies(false);
-        return Arrays.stream(movies).map(Object::toString).collect(Collectors.joining("\n"));
+        return print(movies);
     }
 
     /**
@@ -74,7 +85,7 @@ public class MovieCollection extends MHMap<Long, Movie> {
     @Override
     public String printDescending() {
         Movie[] movies = getSortedMovies(true);
-        return Arrays.stream(movies).map(Object::toString).collect(Collectors.joining("\n"));
+        return print(movies);
     }
 
     /**
@@ -137,6 +148,12 @@ public class MovieCollection extends MHMap<Long, Movie> {
         return this.getMap().containsKey(key);
     }
 
+    /**
+     * Returns an array of movies sorted in either ascending or descending order.
+     *
+     * @param reverse - true if the movies should be sorted in descending order, false if they should be sorted in ascending order
+     * @return an array of movies sorted in either ascending or descending order
+     */
     @Override
     public Movie[] getSortedMovies(boolean reverse) {
         Movie[] movies = this.values();
@@ -155,5 +172,4 @@ public class MovieCollection extends MHMap<Long, Movie> {
         Arrays.stream(this.values()).filter(movie -> movie.getRating() == rating).forEach(this::removeByValue);
         return true;
     }
-
 }

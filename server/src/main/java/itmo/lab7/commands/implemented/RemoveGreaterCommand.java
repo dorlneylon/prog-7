@@ -5,14 +5,27 @@ import itmo.lab7.server.UdpServer;
 import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
+/**
+ * This class implements the {@link Action} interface and is used to remove all elements from the collection that are greater than the given key.
+ */
 public final class RemoveGreaterCommand implements Action {
 
     private final Long key;
 
+    /**
+     * Constructor for RemoveGreaterCommand.
+     *
+     * @param key - the key to be used for comparison
+     */
     public RemoveGreaterCommand(Long key) {
         this.key = key;
     }
 
+    /**
+     * Removes elements from the collection that are greater than the given key
+     *
+     * @return Response object with the result of the operation
+     */
     @Override
     public Response run() {
         if (UdpServer.collection.removeGreater(key)) {

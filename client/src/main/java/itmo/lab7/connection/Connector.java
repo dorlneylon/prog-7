@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Connector is used to connect to a remote server
@@ -73,10 +74,11 @@ public class Connector {
     public void send(byte[] dataBytes) throws Exception {
         Chunker dataChunker = new Chunker(dataBytes, chunkSize);
         var chunkIterator = dataChunker.newIterator();
-        int c = 0;
+        short totalChunks = (short) ((int) Math.ceil((double) dataBytes.length / (double) this.chunkSize));
+        AtomicInteger c = new AtomicInteger(0);
         while (chunkIterator.hasNext()) {
-            if (c++ % 100 == 0) {
-                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, c, (short)((int)Math.ceil((double)dataBytes.length / (double)this.chunkSize)));
+            if (c.incrementAndGet() % 50 == 0) {
+                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, c.get(), totalChunks);
                 Thread.sleep(100);
             }
             byte[] chunk = chunkIterator.next();

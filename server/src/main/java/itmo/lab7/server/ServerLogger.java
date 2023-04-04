@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
+/**
+ * ServerLogger is a class used to create a logger for the server.
+ */
 public class ServerLogger {
     private static final Logger logger = Logger.getLogger(ServerLogger.class.getName());
     private static final FileHandler fileHandler;

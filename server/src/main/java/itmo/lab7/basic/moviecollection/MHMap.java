@@ -17,23 +17,15 @@ import java.util.HashMap;
  * @see MovieCollection
  */
 public abstract class MHMap<K, V> {
-    /**
-     * A constant to represent the white color code in ANSI escape codes.
-     */
-    public static final String whcr = "\u001B[0m";
-
-    /**
-     * A constant to represent the purple color code in ANSI escape codes.
-     */
-    public static final String prcr = "\u001B[35m";
     private final ZonedDateTime initTime;
     /**
      * the map itself
      */
     private HashMap<K, V> map;
 
+
     /**
-     * the default constructor
+     * Constructs a new {@code MHMap} object.
      */
     public MHMap() {
         this.map = new HashMap<>();
@@ -41,37 +33,43 @@ public abstract class MHMap<K, V> {
     }
 
     /**
-     * the insert method
+     * Inserts a value into the tree.
+     *
+     * @param value The value to insert.
+     * @return True if the value was inserted, false otherwise.
      */
     public boolean insert(V value) {
-        try {
-            this.map.put(getKey(value), value);
-            return true;
-        } catch (IllegalStateException e) {
-            return false;
-        }
+        return this.insert(this.getKey(value), value);
     }
 
     /**
-     * insert with the given key
+     * Inserts a key-value pair into the map.
+     *
+     * @param key   The key to be inserted.
+     * @param value The value to be inserted.
+     * @return True if the key-value pair was successfully inserted, false otherwise.
      */
     public boolean insert(K key, V value) {
         if (!this.map.containsKey(key)) {
             this.map.put(key, value);
             return true;
-        } else {
-            System.out.println("The value with this key already exists. Please, use the update command.");
-            return false;
         }
+        return false;
     }
 
     /**
-     * get the key by the value
+     * Retrieves the key associated with the given value.
+     *
+     * @param value The value to retrieve the key for.
+     * @return The key associated with the given value.
      */
     public abstract K getKey(V value);
 
     /**
-     * remove the value by the key
+     * Removes the element with the specified key from the map.
+     *
+     * @param key the key of the element to be removed
+     * @return true if the element was removed, false otherwise
      */
     public boolean removeByKey(K key) {
         if (isKeyPresented(key)) {
@@ -95,77 +93,111 @@ public abstract class MHMap<K, V> {
         return array;
     }
 
+
     /**
-     * remove the value from the map
+     * Removes the element with the specified value from the map.
+     *
+     * @param val The value of the element to be removed
      */
     public void removeByValue(V val) {
         this.removeByKey(this.getKey(val));
     }
 
+
     /**
-     * assign the map
+     * Assigns the given {@link MHMap} to this {@link MHMap}.
+     *
+     * @param map The {@link MHMap} to assign to this {@link MHMap}.
      */
     public void assign(MHMap<K, V> map) {
         this.map = map.getMap();
     }
 
+
     /**
-     * get the value by the key
+     * Retrieves the value associated with the given key.
+     *
+     * @param key The key associated with the value to be retrieved.
+     * @return The value associated with the given key.
      */
     public V get(K key) {
         return this.map.get(key);
     }
 
+
     /**
-     * sort the map elements by a comparator and print them
+     * Prints the elements of the collection in ascending order.
+     *
+     * @return A string representation of the elements in ascending order.
      */
     public abstract String printAscending();
 
+
     /**
-     * reverse sort the map elements by a comparator and print them
+     * Prints the elements of the collection in descending order.
+     *
+     * @return A string representation of the elements in descending order.
      */
     public abstract String printDescending();
 
+
     /**
-     * update the value by the key
+     * Updates the value of the element with the specified key.
+     *
+     * @param key   the key of the element to update
+     * @param value the new value of the element
      */
     public void update(K key, V value) {
         if (isKeyPresented(key)) {
             this.map.put(key, value);
             ServerLogger.getLogger().info("Element with key " + key + " was successfully updated");
-        } else System.out.println("No such value");
+        } else ServerLogger.getLogger().info("No such element with key " + key);
     }
 
+
     /**
-     * update the value
+     * Updates the value associated with the given key.
+     *
+     * @param value The value to update.
      */
     public void update(V value) {
         this.update(this.getKey(value), value);
     }
 
+
     /**
-     * get the init time
+     * Returns the initial date of the object.
+     *
+     * @return the initial date of the object
      */
     public java.time.ZonedDateTime getInitDate() {
         return this.initTime;
     }
 
+
     /**
-     * clear the map
+     * Removes all the mappings from this map.
+     * The map will be empty after this call returns.
      */
     public void clear() {
         this.map.clear();
     }
 
+
     /**
-     * get the size of the map
+     * Returns the number of key-value mappings in this map.
+     *
+     * @return the number of key-value mappings in this map
      */
     public int size() {
         return this.map.size();
     }
 
+
     /**
-     * check if the map is empty
+     * Returns true if the map is empty, false otherwise.
+     *
+     * @return true if the map is empty, false otherwise
      */
     public boolean isEmpty() {
         return this.map.isEmpty();
@@ -176,15 +208,23 @@ public abstract class MHMap<K, V> {
      */
     public abstract boolean contains(V value);
 
+
     /**
-     * check if the map contains a certain key
+     * Checks if the given key is present in the map.
+     *
+     * @param key The key to check for.
+     * @return true if the key is present in the map, false otherwise.
      */
     protected boolean isKeyPresented(K key) {
         return this.map.containsKey(key);
     }
 
+
     /**
-     * check if the map contains the value
+     * Returns true if this map maps one or more keys to the specified value.
+     *
+     * @param value value whose presence in this map is to be tested
+     * @return true if this map maps one or more keys to the specified value
      */
     protected boolean containsValue(V value) {
         return this.map.containsValue(value);
@@ -197,28 +237,39 @@ public abstract class MHMap<K, V> {
      */
     public abstract V[] getSortedMovies(boolean reverse);
 
+
     /**
-     * get the map
+     * Returns the map associated with this object.
+     *
+     * @return the map associated with this object
      */
     public HashMap<K, V> getMap() {
         return this.map;
     }
 
     /**
-     * get the keys of the map
+     * Returns an array containing the values of map, in
+     * the order they are declared. This method may be used to iterate
+     * over the values as follows:
+     *
+     * <pre>
+     *   for (V v : V.values())
+     *       System.out.println(v);
+     *   </pre>
+     *
+     * @return an array containing the values of the map, in order they are declared
      */
     public abstract V[] values();
 
+
     /**
-     * Print the information about the collection:
-     * elements' type, date of initialization, number of elements, etc.
+     * Returns a string containing information about the map.
+     *
+     * @return a string containing information about the map
      */
     public String info() {
         Class<?> a = this.map.isEmpty() ? null : this.map.entrySet().stream().toList().get(0).getKey().getClass();
         String keyTypeName = a == null ? "none" : a.getName();
-        return "Type: " + this.getClass().getName() + "\n"
-                + "Key type: " + keyTypeName + "\n"
-                + "Date of initialization: " + this.getInitDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n"
-                + "Number of elements: " + this.size();
+        return "Type: " + this.getClass().getName() + "\n" + "Key type: " + keyTypeName + "\n" + "Date of initialization: " + this.getInitDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + "Number of elements: " + this.size();
     }
 }

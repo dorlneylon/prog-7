@@ -9,7 +9,16 @@ import itmo.lab7.server.response.ResponseType;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * HelpCommand class implements the Action interface and is used to print out the description of all the commands
+ * available in the game.
+ */
 public final class HelpCommand implements Action {
+    /**
+     * Runs the command.
+     *
+     * @return The response of the command.
+     */
     @Override
     public Response run() {
         return new Response(MessagePainter.ColoredInfoMessage(Arrays.stream(CommandType.values()).

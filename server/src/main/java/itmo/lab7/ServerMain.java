@@ -6,6 +6,7 @@ import itmo.lab7.utils.config.Config;
 import itmo.lab7.xml.Xml;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
@@ -17,7 +18,13 @@ public class ServerMain {
     private static Integer serverPort;
 
     static {
-        Config config = new Config("server.scfg");
+        Config config = null;
+        try {
+            config = new Config("server.scfg");
+        } catch (FileNotFoundException e) {
+            System.err.println("Unable to find config file " + "server.scfg");
+            System.exit(1);
+        }
         collectionFileName = config.get("collection_file");
         if (collectionFileName == null) {
             // Setting up the default file name

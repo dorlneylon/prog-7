@@ -10,12 +10,21 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 
+/**
+ * This class represents a command that can be executed.
+ */
 public final class Command implements Serializable {
     @Serial
     private static final long serialVersionUID = 6529685098267757690L;
     private final CommandType commandType;
     private Object[] arguments;
 
+    /**
+     * Constructor for Command object
+     *
+     * @param commandType the type of command
+     * @param arguments   the arguments associated with the command
+     */
     public Command(CommandType commandType, Object... arguments) {
         this.commandType = commandType;
         this.arguments = arguments;
@@ -29,10 +38,14 @@ public final class Command implements Serializable {
         this.arguments = arguments;
     }
 
-    public Object[] getArguments() { return arguments; }
+    public Object[] getArguments() {
+        return arguments;
+    }
 
     /**
-     * В этом методе вызывается конструктор у нужной нам команды. Затем она исполняется.
+     * Executes the command.
+     *
+     * @return Response object with the result of the command execution.
      */
     public Response execute() {
         try {

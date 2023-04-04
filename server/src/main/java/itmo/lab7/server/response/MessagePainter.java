@@ -1,6 +1,13 @@
 package itmo.lab7.server.response;
 
+
 public final class MessagePainter {
+    /**
+     * Formats a message with colored text.
+     *
+     * @param message The message to format.
+     * @return The formatted message.
+     */
     public static String ColoredInfoMessage(String message) {
         String pattern = "^(.*?): (.*$)";
         StringBuilder resultSb = new StringBuilder();
