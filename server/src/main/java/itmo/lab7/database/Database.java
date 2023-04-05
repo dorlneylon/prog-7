@@ -1,12 +1,20 @@
 package itmo.lab7.database;
 
 import itmo.lab7.basic.baseclasses.Movie;
+import itmo.lab7.basic.baseenums.MpaaRating;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.utils.serializer.Serializer;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
+
+import static itmo.lab7.server.UdpServer.collection;
 
 /**
  * Database class for connecting to and interacting with a database.
@@ -40,11 +48,14 @@ public class Database {
      * @param password The password of the new user.
      * @return true if the user was successfully added, false otherwise.
      */
+
     public boolean addNewUser(String login, String password) {
         if (isUserExist(login)) return false;
         byte flags = 0; // last 2 digits are flags
-        String encryptedPassword = Encryptor.encryptString(password);
         try {
+            // Hash the password using SHA-256
+            String encryptedPassword = hashPassword(password);
+
             // Create a prepared statement to insert a new user into the users table
             PreparedStatement userStatement = connection.prepareStatement("INSERT INTO \"user\" (login, password) VALUES (?, ?)");
             // Set the login and password parameters of the prepared statement
@@ -79,6 +90,7 @@ public class Database {
         // Return true if both flags are set, false otherwise
         return flags == 3;
     }
+
 
     /**
      * Checks if a user exists in the database
@@ -157,12 +169,13 @@ public class Database {
      * @param password The user's password.
      * @return true if the user is registered, false otherwise.
      */
-    public boolean userSingIn(String login, String password) {
+    public boolean userSignIn(String login, String password) {
         try {
+            String hashedPassword = hashPassword(password);
             String sql = "SELECT * FROM \"user\" WHERE login = ? AND password = ?";
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setString(1, login);
-            pre.setString(2, password);
+            pre.setString(2, hashedPassword);
             ResultSet result = pre.executeQuery();
             if (result.next()) return true;
         } catch (SQLException e) {
@@ -170,6 +183,23 @@ public class Database {
             ServerLogger.getLogger().log(Level.INFO, "Unable to check user " + e.getMessage());
         }
         return false;
+    }
+
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            ServerLogger.getLogger().log(Level.INFO, "Unable to hash password " + e.getMessage());
+        }
+        return null;
     }
 
     public boolean insertToCollection(String login, Movie movie) {
@@ -212,5 +242,45 @@ public class Database {
             ServerLogger.getLogger().log(Level.INFO, "Unable to clear collection " + e.getMessage());
         }
         return false;
+    }
+
+    public void removeByMpaaRating(String username, MpaaRating mpaaRating) {
+        try {
+            String selectSql = "SELECT id FROM \"collection\" WHERE editor = ?";
+            PreparedStatement selectPre = connection.prepareStatement(selectSql);
+            selectPre.setString(1, username);
+            ResultSet selectResult = selectPre.executeQuery();
+
+            List<Integer> movieIds = new ArrayList<>();
+            while (selectResult.next()) {
+                movieIds.add(selectResult.getInt(1));
+            }
+
+            String deleteSql = "DELETE FROM \"collection\" WHERE id = ?";
+            PreparedStatement deletePre = connection.prepareStatement(deleteSql);
+            for (int id : movieIds) {
+                Movie movie = getMovieById(username, id);
+                if (movie != null && movie.getRating().equals(mpaaRating)) {
+                    deletePre.setInt(1, id);
+                    deletePre.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            ServerLogger.getLogger().log(Level.INFO, "Unable to remove by mpaa rating " + e.getMessage());
+        }
+    }
+
+    // Возвращаем только те объекты, которые были созданы пользователем.
+    private Movie getMovieById(String username, int id) throws SQLException {
+        String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
+        PreparedStatement pre = connection.prepareStatement(sql);
+        pre.setInt(1, id);
+        pre.setString(2, username);
+        ResultSet result = pre.executeQuery();
+        if (result.next()) {
+            // Может, не работает.
+            return (Movie) result.getArray(1).getArray();
+        }
+        return null;
     }
 }

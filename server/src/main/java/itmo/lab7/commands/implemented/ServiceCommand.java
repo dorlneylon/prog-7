@@ -4,7 +4,11 @@ import itmo.lab7.commands.Action;
 import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static itmo.lab7.server.UdpServer.collection;
+import static itmo.lab7.server.UdpServer.getDatabase;
 
 /**
  * This class is used to execute commands from the service.
@@ -27,7 +31,7 @@ public final class ServiceCommand implements Action {
      * @return Response object with the result of the command execution
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         String[] splitCommand = command.split(" ");
         String commandPart = splitCommand[0];
         String arg = null;
@@ -42,6 +46,28 @@ public final class ServiceCommand implements Action {
                 yield new Response(Boolean.toString(isPresented), ResponseType.INFO);
             }
             case "get_collection_size" -> new Response(Integer.toString(collection.size()), ResponseType.INFO);
+            case "sign_up" -> {
+                assert arg != null;
+                Matcher matcher = Pattern.compile("(.*):(.*)$").matcher(arg);
+                if (!matcher.find()) {
+                    yield new Response("Wrong format of the command", ResponseType.ERROR);
+                }
+
+                yield getDatabase().addNewUser(matcher.group(1), matcher.group(2)) ?
+                        new Response("OK", ResponseType.SUCCESS) :
+                        new Response("Something happened during signing. Try again", ResponseType.ERROR);
+            }
+            case "sign_in" -> {
+                assert arg != null;
+                Matcher matcher = Pattern.compile("(.*):(.*)$").matcher(arg);
+                if (!matcher.find()) {
+                    yield new Response("Wrong format of the command", ResponseType.ERROR);
+                }
+
+                yield getDatabase().userSignIn(matcher.group(1), matcher.group(2)) ?
+                        new Response("OK", ResponseType.SUCCESS) :
+                        new Response("Something happened during signing. Try again", ResponseType.ERROR);
+            }
             default -> new Response("", ResponseType.INFO);
         };
     }

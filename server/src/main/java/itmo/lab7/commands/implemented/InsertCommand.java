@@ -29,11 +29,11 @@ public final class InsertCommand implements Action {
      * @return A {@link Response} object with a message and a {@link ResponseType} indicating the success of the operation.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (collection.insert(movie)) {
-            UdpServer.getDatabase().insertToCollection("kxrxh", movie);
+            UdpServer.getDatabase().insertToCollection(username, movie);
             return new Response("Insert was completed successfully", ResponseType.INFO);
         }
-        return new Response("Insertion failed due to existence", ResponseType.INFO);
+        return new Response("Insertion failed due to indices collision", ResponseType.INFO);
     }
 }

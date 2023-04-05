@@ -29,7 +29,7 @@ public final class RemoveKeyCommand implements Action {
      * @return a {@link Response} object with a message and a {@link ResponseType}
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (UdpServer.collection.removeByKey(key)) {
             UdpServer.getDatabase().removeByKey(key);
             return new Response("Movie with key %d deleted successfully".formatted(key), ResponseType.SUCCESS);

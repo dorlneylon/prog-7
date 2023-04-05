@@ -27,7 +27,7 @@ public final class RemoveGreaterCommand implements Action {
      * @return Response object with the result of the operation
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (UdpServer.collection.removeGreater(key)) {
             return new Response("Greater elements have been successfully deleted", ResponseType.SUCCESS);
         }

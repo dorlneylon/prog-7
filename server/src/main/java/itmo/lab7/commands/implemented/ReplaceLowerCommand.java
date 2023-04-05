@@ -28,7 +28,7 @@ public final class ReplaceLowerCommand implements Action {
      * @return a {@link Response} object with a message and a {@link ResponseType} indicating the success of the operation
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (collection.replaceLower(movie.getId(), movie))
             return new Response("Element has been successfully replaced", ResponseType.SUCCESS);
         return new Response("Element either doesn't exist or has less oscars.", ResponseType.SUCCESS);

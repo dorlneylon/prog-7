@@ -51,7 +51,7 @@ public class ShowCommand implements Action {
      * @return The response of the command.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (collection.isEmpty()) return new Response("Collection is empty", ResponseType.SUCCESS);
 
         String test = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.values()).toList().toString().replace("., ", ",\n"));

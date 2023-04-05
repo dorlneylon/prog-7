@@ -57,14 +57,15 @@ public class ServerMain {
             collection = new MovieCollection();
         }
         Database db = null;
-        try {
-            db = new Database(url, user, password);
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
+
+//        try {
+//            db = new Database(url, user, password);
+//        } catch (SQLException e) {
+//            System.err.println(e.getMessage());
+//            System.exit(1);
+//        }
         // db.addNewUser("kxrxh", "kxrxh");
-        System.out.println(db.userSingIn("kxrxh", "kxrxh"));
+//        System.out.println(db.userSignIn("kxrxh", "kxrxh"));
 
 //        db.addCommandToHistory("kxrxh", "INSERT");
 //        db.addCommandToHistory("kxrxh", "ADD");

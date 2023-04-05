@@ -40,7 +40,7 @@ public final class PrintAscendingCommand implements Action {
      */
     @Override
     // Override the run method from the Command interface
-    public Response run() {
+    public Response run(String username) {
         // If the collection size is 0, return a success response
         if (collection.size() == 0)
             return new Response("Collection is empty", ResponseType.SUCCESS);

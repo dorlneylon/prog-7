@@ -11,5 +11,5 @@ import itmo.lab7.server.response.Response;
  */
 public interface Action {
 
-    Response run();
+    Response run(String username);
 }

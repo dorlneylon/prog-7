@@ -27,9 +27,11 @@ public final class RemoveByMpaaRating implements Action {
      * @return A {@link Response} object with a message and a {@link ResponseType}
      */
     @Override
-    public Response run() {
-        if (UdpServer.collection.removeByRating(mpaaRating))
+    public Response run(String username) {
+        if (UdpServer.collection.removeByRating(mpaaRating)) {
+            UdpServer.getDatabase().removeByMpaaRating(username, mpaaRating);
             return new Response("Successfully deleted", ResponseType.SUCCESS);
+        }
         return new Response("No such element(s)", ResponseType.ERROR);
     }
 }

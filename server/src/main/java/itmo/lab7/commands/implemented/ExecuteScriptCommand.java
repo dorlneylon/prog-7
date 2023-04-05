@@ -31,13 +31,13 @@ public final class ExecuteScriptCommand implements Action {
      * or an error message if the command queue is empty.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (commandQueue.isEmpty()) {
             return new Response("The command queue is empty", ResponseType.ERROR);
         }
         StringBuilder output = new StringBuilder();
         for (Command command : commandQueue) {
-            output.append(command.execute().getMessage()).append("\n");
+            output.append(command.execute(username).getMessage()).append("\n");
         }
         return new Response(output.toString().trim(), ResponseType.INFO);
     }

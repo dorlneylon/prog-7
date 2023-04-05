@@ -20,7 +20,7 @@ public final class HelpCommand implements Action {
      * @return The response of the command.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         return new Response(MessagePainter.ColoredInfoMessage(Arrays.stream(CommandType.values()).
                 map(CommandType::getDescription).
                 filter(description -> !description.isEmpty()).

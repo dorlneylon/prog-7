@@ -15,7 +15,7 @@ public final class ClearCommand implements Action {
      * @return A {@link Response} object with a message indicating the success of the operation.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         UdpServer.collection.clear();
         UdpServer.getDatabase().clearCollection();
         return new Response("Collection cleaned successfully", ResponseType.SUCCESS);

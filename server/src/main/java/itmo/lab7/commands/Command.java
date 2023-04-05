@@ -3,7 +3,7 @@ package itmo.lab7.commands;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
-
+import itmo.lab7.database.Database;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -47,7 +47,7 @@ public final class Command implements Serializable {
      *
      * @return Response object with the result of the command execution.
      */
-    public Response execute() {
+    public Response execute(String username) {
         try {
             Class<?> executableClass = commandType.getExecutableClass();
             Constructor<?> constructor;
@@ -64,7 +64,7 @@ public final class Command implements Serializable {
                 constructor = executableClass.getDeclaredConstructor(argumentsTypes);
                 instance = constructor.newInstance(arguments);
             }
-            return ((Action) instance).run();
+            return ((Action) instance).run(username);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
             ServerLogger.getLogger().warning("Unable to execute command: " + e);

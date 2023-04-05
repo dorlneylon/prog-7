@@ -40,7 +40,7 @@ public final class PrintDescendingCommand implements Action {
      * @return A response with the result of the command.
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (collection.size() == 0) return new Response("Collection is empty", ResponseType.SUCCESS);
 
         String message = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.getSortedMovies(true)).toList().subList(index, min(index + 20, collection.size())).toString().replace("., ", ",\n"));

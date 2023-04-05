@@ -15,7 +15,7 @@ public final class InfoCommand implements Action {
      * @return a {@link Response} containing the information about the collection
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         return new Response(MessagePainter.ColoredInfoMessage(UdpServer.collection.info()), ResponseType.INFO);
     }
 }

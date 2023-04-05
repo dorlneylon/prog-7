@@ -28,7 +28,7 @@ public class UpdateCommand implements Action {
      * @return A {@link Response} object with the appropriate message and {@link ResponseType}
      */
     @Override
-    public Response run() {
+    public Response run(String username) {
         if (!collection.isKeyPresented(movie.getId()))
             return new Response("Collection does not contain such a key", ResponseType.ERROR);
         collection.update(movie);
