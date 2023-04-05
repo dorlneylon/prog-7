@@ -65,6 +65,7 @@ public class ServerMain {
         }
         // db.addNewUser("kxrxh", "kxrxh");
         System.out.println(db.userSingIn("kxrxh", "kxrxh"));
+
 //        db.addCommandToHistory("kxrxh", "INSERT");
 //        db.addCommandToHistory("kxrxh", "ADD");
 //        System.out.println(Arrays.toString(db.getCommandHistory("kxrxh")));

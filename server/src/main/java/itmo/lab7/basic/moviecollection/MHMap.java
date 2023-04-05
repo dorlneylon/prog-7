@@ -75,8 +75,10 @@ public abstract class MHMap<K, V> {
      */
     public boolean removeByKey(K key) {
         if (isKeyPresented(key)) {
-            this.map.remove(key);
-            return true;
+            synchronized (this.map) {
+                this.map.remove(key);
+                return true;
+            }
         }
         return false;
     }
@@ -87,10 +89,12 @@ public abstract class MHMap<K, V> {
     public Object[][] toArray() {
         Object[][] array = new Object[this.size()][2];
         int i = 0;
-        for (K key : this.map.keySet()) {
-            array[i][0] = key;
-            array[i][1] = this.map.get(key);
-            i++;
+        synchronized (this.map) {
+            for (K key : this.map.keySet()) {
+                array[i][0] = key;
+                array[i][1] = this.map.get(key);
+                i++;
+            }
         }
         return array;
     }
@@ -112,7 +116,9 @@ public abstract class MHMap<K, V> {
      * @return The value associated with the given key.
      */
     public V get(K key) {
-        return this.map.get(key);
+        synchronized (this.map) {
+            return this.map.get(key);
+        }
     }
 
 
@@ -181,7 +187,9 @@ public abstract class MHMap<K, V> {
      * @return the number of key-value mappings in this map
      */
     public int size() {
-        return this.map.size();
+        synchronized (this.map) {
+            return this.map.size();
+        }
     }
 
 
@@ -207,7 +215,9 @@ public abstract class MHMap<K, V> {
      * @return true if the key is present in the map, false otherwise.
      */
     protected boolean isKeyPresented(K key) {
-        return this.map.containsKey(key);
+        synchronized (this.map) {
+            return this.map.containsKey(key);
+        }
     }
 
 
@@ -259,8 +269,10 @@ public abstract class MHMap<K, V> {
      * @return a string containing information about the map
      */
     public String info() {
-        Class<?> a = this.map.isEmpty() ? null : this.map.entrySet().stream().toList().get(0).getKey().getClass();
-        String keyTypeName = a == null ? "none" : a.getName();
-        return "Type: " + this.getClass().getName() + "\n" + "Key type: " + keyTypeName + "\n" + "Date of initialization: " + this.getInitDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + "Number of elements: " + this.size();
+        synchronized (this.map) {
+            Class<?> a = this.map.isEmpty() ? null : this.map.entrySet().stream().toList().get(0).getKey().getClass();
+            String keyTypeName = a == null ? "none" : a.getName();
+            return "Type: " + this.getClass().getName() + "\n" + "Key type: " + keyTypeName + "\n" + "Date of initialization: " + this.getInitDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + "Number of elements: " + this.size();
+        }
     }
 }

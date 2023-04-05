@@ -23,7 +23,7 @@ public class Connector {
     private static DatagramSocket socket;
     private final InetAddress address;
     private final int port;
-    private final static int socketTimeout = 8000;
+    private final static int socketTimeout = 16000;
 
     private int chunkSize;
 
@@ -86,24 +86,6 @@ public class Connector {
             socket.send(dataPacket);
         }
     }
-
-//    public void send(byte[] bytes) throws Exception {
-//        int numChunks = (int) Math.ceil((double) bytes.length / chunkSize);
-//        for (int i = 0; i < numChunks; i++) {
-//            int offset = i * chunkSize;
-//            int length = Math.min(bytes.length - offset, chunkSize);
-//            byte[] chunk = new byte[length + 1];
-//            chunk[length] = (numChunks == 1 || i + 1 == numChunks) ? (byte) 0 : (byte) 1; // has next flag
-//            System.arraycopy(bytes, offset, chunk, 0, length);
-//            DatagramPacket datagramPacket = new DatagramPacket(chunk, length + 1, this.address, port);
-//            socket.send(datagramPacket);
-//            if (i != 0 && i % 100 == 0) {
-//                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, i + 1, numChunks);
-//                Thread.sleep(100);
-//            }
-//        }
-//        System.out.print("");
-//    }
 
     /**
      * Receives bytes from remote server and transforms them into string

@@ -1,8 +1,11 @@
 package itmo.lab7.database;
 
+import itmo.lab7.basic.baseclasses.Movie;
 import itmo.lab7.server.ServerLogger;
+import itmo.lab7.utils.serializer.Serializer;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 
 /**
@@ -165,6 +168,48 @@ public class Database {
         } catch (SQLException e) {
             // Log any errors that occur
             ServerLogger.getLogger().log(Level.INFO, "Unable to check user " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean insertToCollection(String login, Movie movie) {
+        try {
+            String sql = "INSERT INTO \"collection\" (id, editor, movie, last_modified_date) VALUES (?, ?, ?, ?)";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, Math.toIntExact(movie.getId()));
+            pre.setString(2, login);
+            Array array = connection.createArrayOf("BYTEA", new Object[]{Serializer.serialize(movie)});
+            pre.setArray(3, array);
+            pre.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            return pre.executeUpdate() > 0;
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to insert to collection " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean removeByKey(Long key) {
+        try {
+            String sql = "DELETE FROM \"collection\" WHERE id = ?";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setLong(1, key);
+            return pre.executeUpdate() > 0;
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to remove by key " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean clearCollection() {
+        try {
+            String sql = "DELETE FROM \"collection\"";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            return pre.executeUpdate() > 0;
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to clear collection " + e.getMessage());
         }
         return false;
     }

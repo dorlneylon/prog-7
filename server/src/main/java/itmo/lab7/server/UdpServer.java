@@ -142,7 +142,7 @@ public class UdpServer {
      *
      * @return The map of InetSocketAddress and ChuckReceiver objects.
      */
-    public static Map<InetSocketAddress, ChuckReceiver> getChunkLists() {
+    public synchronized static Map<InetSocketAddress, ChuckReceiver> getChunkLists() {
         return chunkLists;
     }
 

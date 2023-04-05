@@ -52,14 +52,17 @@ public class CommandHandler {
         Chunker chunker = new Chunker(output, chunkSize);
         // Create an iterator for the chunks
         var chunkIterator = chunker.newIterator();
+        int c = 0;
         // Iterate through the chunks
         while (chunkIterator.hasNext()) {
             // Get the next chunk
             byte[] chunk = chunkIterator.next();
+            if (++c % 50 == 0) {
+                Thread.sleep(100);
+            }
             // Send the chunk to the sender
             channel.send(ByteBuffer.wrap(chunk), sender);
         }
-
         // Write the collection to the XML file
         new Xml(new File(ServerMain.collectionFileName), true).newWriter().writeCollection(collection);
     }

@@ -39,19 +39,16 @@ public class UdpHandler implements Runnable {
      */
     @Override
     public void run() {
-        // Get the ChuckReceiver object associated with the client's address
-        ChuckReceiver receiver = UdpServer.getChunkLists().get(clientAddress);
-
-        // If the receiver is null, create a new one and add it to the map
-        if (receiver == null) {
-            receiver = new ChuckReceiver();
-            UdpServer.getChunkLists().put(clientAddress, receiver);
+        ChuckReceiver receiver;
+        synchronized (UdpServer.getChunkLists()) {
+            receiver = UdpServer.getChunkLists().get(clientAddress);
+            // If the receiver is null, create a new one and add it to the map
+            if (receiver == null) {
+                receiver = new ChuckReceiver();
+                UdpServer.getChunkLists().put(clientAddress, receiver);
+            }
+            receiver.add(Arrays.copyOfRange(buffer.array(), 0, buffer.position()));
         }
-
-        // Add the received data to the receiver
-        receiver.add(Arrays.copyOfRange(buffer.array(), 0, buffer.position()));
-
-        // If the receiver has received all the chunks, handle the packet
         if (receiver.isReceived()) {
             try {
                 handlePacket(clientAddress, receiver.getAllChunks());
@@ -63,9 +60,9 @@ public class UdpHandler implements Runnable {
                 }
                 // Log the error
                 ServerLogger.getLogger().warning(e.toString());
+            } finally {
+                UdpServer.getChunkLists().remove(clientAddress);
             }
-            // Remove the receiver from the map
-            UdpServer.getChunkLists().remove(clientAddress);
         }
     }
 }

@@ -36,7 +36,9 @@ public final class ExecuteScriptCommand implements Action {
             return new Response("The command queue is empty", ResponseType.ERROR);
         }
         StringBuilder output = new StringBuilder();
-        commandQueue.forEach(command -> output.append(command.execute().getMessage()).append("\n"));
-        return new Response(output.toString().trim(), ResponseType.SUCCESS);
+        for (Command command : commandQueue) {
+            output.append(command.execute().getMessage()).append("\n");
+        }
+        return new Response(output.toString().trim(), ResponseType.INFO);
     }
 }

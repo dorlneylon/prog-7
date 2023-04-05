@@ -1,7 +1,7 @@
 package itmo.lab7.server.response;
 
 public enum Color {
-    GREEN("\u001B"), PURPLE("\u001B[35m"), RED("\u001B[31m"), RESET("\u001B[0m");
+    GREEN("\u001B"), PURPLE("\u001b[35m"), RED("\u001B[31m"), RESET("\u001B[0m");
 
     private final String colorCode;
 

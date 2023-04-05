@@ -97,7 +97,9 @@ public class MovieCollection extends MHMap<Long, Movie> {
      */
     @Override
     public Long getKey(Movie movie) {
-        return movie.getId();
+        synchronized (this) {
+            return movie.getId();
+        }
     }
 
     /**
@@ -108,7 +110,9 @@ public class MovieCollection extends MHMap<Long, Movie> {
      */
     @Override
     public Movie[] values() {
-        return this.getMap().values().toArray(new Movie[this.size()]);
+        synchronized (this.getMap()) {
+            return this.getMap().values().toArray(new Movie[this.size()]);
+        }
     }
 
     /**
@@ -119,11 +123,13 @@ public class MovieCollection extends MHMap<Long, Movie> {
      * @return true if the elements are swapped, false otherwise
      */
     public boolean replaceLower(Long key, Movie movie) {
-        if (movie.oscarsCount() < this.get(key).oscarsCount()) {
-            this.update(key, movie);
-            return true;
+        synchronized (this) {
+            if (movie.oscarsCount() < this.get(key).oscarsCount()) {
+                this.update(key, movie);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -135,7 +141,9 @@ public class MovieCollection extends MHMap<Long, Movie> {
      */
     @Override
     public boolean contains(Movie movie) {
-        return this.getMap().containsValue(movie);
+        synchronized (this.getMap()) {
+            return this.getMap().containsValue(movie);
+        }
     }
 
     /**
@@ -145,7 +153,9 @@ public class MovieCollection extends MHMap<Long, Movie> {
      * @return true if the key is in the collection, false otherwise
      */
     public boolean isKeyPresented(Long key) {
-        return this.getMap().containsKey(key);
+        synchronized (this.getMap()) {
+            return this.getMap().containsKey(key);
+        }
     }
 
     /**
@@ -156,9 +166,11 @@ public class MovieCollection extends MHMap<Long, Movie> {
      */
     @Override
     public Movie[] getSortedMovies(boolean reverse) {
-        Movie[] movies = this.values();
-        Arrays.sort(movies, (reverse) ? Comparator.reverseOrder() : Comparator.naturalOrder());
-        return movies;
+        synchronized (this) {
+            Movie[] movies = this.values();
+            Arrays.sort(movies, (reverse) ? Comparator.reverseOrder() : Comparator.naturalOrder());
+            return movies;
+        }
     }
 
     /**
@@ -169,7 +181,9 @@ public class MovieCollection extends MHMap<Long, Movie> {
      * @see MpaaRating
      */
     public boolean removeByRating(MpaaRating rating) {
-        Arrays.stream(this.values()).filter(movie -> movie.getRating() == rating).forEach(this::removeByValue);
-        return true;
+        synchronized (this) {
+            Arrays.stream(this.values()).filter(movie -> movie.getRating() == rating).forEach(this::removeByValue);
+            return true;
+        }
     }
 }
