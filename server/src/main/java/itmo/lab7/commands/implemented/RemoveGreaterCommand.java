@@ -29,6 +29,7 @@ public final class RemoveGreaterCommand implements Action {
     @Override
     public Response run(String username) {
         if (UdpServer.collection.removeGreater(key)) {
+            UdpServer.getDatabase().removeGreater(Math.toIntExact(key), username);
             return new Response("Greater elements have been successfully deleted", ResponseType.SUCCESS);
         }
         return new Response("There are no items in the collection larger than a given", ResponseType.ERROR);

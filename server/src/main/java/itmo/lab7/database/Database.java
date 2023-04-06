@@ -5,7 +5,6 @@ import itmo.lab7.basic.baseenums.MpaaRating;
 import itmo.lab7.basic.moviecollection.MovieCollection;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.utils.serializer.Serializer;
-
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -150,7 +149,7 @@ public class Database {
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setString(1, login);
             ResultSet result = pre.executeQuery();
-            if (result.next()) return (String[]) result.getArray(1).getArray();
+            if (result.next()) return (String[])result.getArray(1).getArray();
         } catch (SQLException e) {
             // Log any errors that occur
             ServerLogger.getLogger().log(Level.INFO, "Unable to get command history " + e.getMessage());
@@ -194,8 +193,7 @@ public class Database {
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setInt(1, Math.toIntExact(movie.getId()));
             pre.setString(2, login);
-            Array array = connection.createArrayOf("BYTEA", new Object[]{Serializer.serialize(movie)});
-            pre.setArray(3, array);
+            pre.setBytes(3, Serializer.serialize(movie));
             pre.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             return pre.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -262,6 +260,7 @@ public class Database {
             while (selectResult.next()) {
                 movieIds.add(selectResult.getInt(1));
             }
+
             String deleteSql = "DELETE FROM \"collection\" WHERE id = ?";
             PreparedStatement deletePre = connection.prepareStatement(deleteSql);
             for (int id : movieIds) {
@@ -274,6 +273,44 @@ public class Database {
         } catch (SQLException e) {
             ServerLogger.getLogger().log(Level.INFO, "Unable to remove by mpaa rating " + e.getMessage());
         }
+    }
+
+    public boolean replaceLower(Integer key, Movie movie, String username) {
+        try {
+            String sql = "SELECT id FROM \"collection\" WHERE editor = ?";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setString(1, username);
+            ResultSet resultSet = pre.executeQuery();
+            for (int id = 0; resultSet.next(); id = resultSet.getInt(1)) {
+                Movie movie1 = getMovieById(username, id);
+                if (movie1 != null && movie1.getOscarsInt() < key)
+                    return updateById(username, Math.toIntExact(movie.getId()), movie);
+            }
+            return true;
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to replace lower " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean removeGreater(Integer key, String username) {
+        try {
+            String sql = "SELECT id FROM \"collection\" WHERE editor = ?";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setString(1, username);
+            ResultSet resultSet = pre.executeQuery();
+            for (int id = 0; resultSet.next(); id = resultSet.getInt(1)) {
+                Movie movie = getMovieById(username, id);
+                if (movie != null && movie.getOscarsInt() > key)
+                    removeByKey(movie.getId(), username);
+            }
+            return true;
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to remove greater " + e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -291,9 +328,30 @@ public class Database {
         pre.setString(2, username);
         ResultSet result = pre.executeQuery();
         if (result.next()) {
-            return (Movie) result.getArray(1).getArray();
+            return (Movie) Serializer.deserialize(result.getBytes(1));
         }
         return null;
+    }
+
+    public boolean updateById(String username, int id, Movie movie) throws SQLException {
+        String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
+        PreparedStatement pre = connection.prepareStatement(sql);
+        pre.setInt(1, id);
+        pre.setString(2, username);
+        ResultSet result = pre.executeQuery();
+        if (result.next())
+            return removeByKey((long) id, username) && insertToCollection(username, movie);
+
+        return false;
+    }
+
+    public boolean isUserEditor(String username, int id) throws SQLException {
+        String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
+        PreparedStatement pre = connection.prepareStatement(sql);
+        pre.setInt(1, id);
+        pre.setString(2, username);
+        ResultSet result = pre.executeQuery();
+        return result.next();
     }
 
     /**
@@ -315,8 +373,8 @@ public class Database {
             while (resultSet.next()) {
                 // Get the id and byte array value of the movie column
                 long id = resultSet.getLong("id");
-                Array array = resultSet.getArray("movie");
-                byte[] movieBytes = (byte[]) array.getArray();
+                // get the byte array from the result set
+                byte[] movieBytes = resultSet.getBytes("movie");
                 // Deserialize the movie object from the byte array
                 Movie movie = (Movie) Serializer.deserialize(movieBytes);
 

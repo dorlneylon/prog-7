@@ -10,6 +10,7 @@ public class Request implements Serializable {
     private final Command command;
     private final String login;
 
+
     public Request(Command command, String login) {
         this.command = command;
         this.login = login;
@@ -17,6 +18,12 @@ public class Request implements Serializable {
 
     public Request(Command command) {
         this(command, null);
+    }
+
+    public Request(CommandType commandType, String name, String[] arguments) {
+        CommandFactory.setName(name);
+        this.command = CommandFactory.createCommand(commandType, arguments);
+        this.login = name;
     }
 
     public Command getCommand() {

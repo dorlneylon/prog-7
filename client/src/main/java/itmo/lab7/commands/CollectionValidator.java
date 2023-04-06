@@ -37,7 +37,7 @@ public final class CollectionValidator {
         return Integer.parseInt(connector.receive());
     }
 
-    public static Boolean isMovieValid(CommandType type, String[] args) {
+    public static Boolean isMovieValid(CommandType type, String name, String[] args) {
         if (args.length < 1) {
             System.err.println("Not enough arguments for command " + type.name());
             return null;
@@ -49,11 +49,20 @@ public final class CollectionValidator {
                 System.err.println("Key " + key + " is not compatible with the command " + type.name() + ".");
                 return false;
             }
+            if (!isUserCreator(name, key)) {
+                System.err.println("You are not the creator of the movie with id = " + key + ".");
+                return false;
+            }
         } catch (Exception e) {
             System.err.println("Invalid argument for command " + type.name());
             return false;
         }
         return true;
+    }
+
+    public static boolean isUserCreator(String name, long key) throws Exception {
+        connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SERVICE, "is_user_creator %d %s".formatted(key, name)))));
+        return Boolean.parseBoolean(connector.receive());
     }
 }
 

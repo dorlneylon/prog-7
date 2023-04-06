@@ -1,9 +1,11 @@
 package itmo.lab7.commands.implemented;
 
 import itmo.lab7.commands.Action;
+import itmo.lab7.server.UdpServer;
 import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +69,13 @@ public final class ServiceCommand implements Action {
                 yield getDatabase().userSignIn(matcher.group(1), matcher.group(2)) ?
                         new Response("OK", ResponseType.SUCCESS) :
                         new Response("Something happened during signing. Try again", ResponseType.ERROR);
+            }
+            case "is_user_creator" -> {
+                try {
+                    yield new Response(Boolean.toString(UdpServer.getDatabase().isUserEditor(splitCommand[2], Integer.parseInt(arg))), ResponseType.INFO);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
             default -> new Response("", ResponseType.INFO);
         };

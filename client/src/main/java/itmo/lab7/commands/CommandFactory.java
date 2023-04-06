@@ -22,7 +22,7 @@ import static itmo.lab7.commands.CollectionValidator.getCollectionSize;
  * This class is used to create new instances of {@link Command}
  */
 public final class CommandFactory {
-    private static HashSet<CommandType> commandsHistory = new HashSet<>();
+    private static String name = null;
 
     /**
      * Returns new command instance {@link Command}
@@ -32,7 +32,6 @@ public final class CommandFactory {
      * @return command instance (can be null)
      */
     public static Command createCommand(CommandType type, String[] args) {
-        if (!type.equals(CommandType.DEFAULT)) commandsHistory.add(type);
         return switch (type) {
             case EXIT -> {
                 System.out.println("Shutting down...");
@@ -62,10 +61,7 @@ public final class CommandFactory {
                     yield new Command(type, Integer.parseInt(args[0]));
                 }
             }
-            case HISTORY -> {
-                System.out.println(commandsHistory.stream().map(CommandType::name).reduce((s1, s2) -> s1 + "\n" + s2).orElse("No commands were executed."));
-                yield null;
-            }
+            case HISTORY -> new Command(CommandType.HISTORY, name);
             case REMOVE_GREATER, REMOVE_KEY -> {
                 if (args.length < 1) {
                     System.err.println("Not enough arguments for command " + type.name());
@@ -120,11 +116,15 @@ public final class CommandFactory {
      * @return read movie from console
      */
     public static Movie parseMovie(CommandType type, String[] args) {
-        if (Boolean.FALSE.equals(isMovieValid(type, args))) return null;
+        if (Boolean.FALSE.equals(isMovieValid(type, name, args))) return null;
 
         Movie movie = new UserInputParser().readObject(Movie.class);
         Objects.requireNonNull(movie).setId(Long.parseLong(args[0]));
         return movie;
+    }
+
+    public static void setName(String name) {
+        CommandFactory.name = name;
     }
 
     /**

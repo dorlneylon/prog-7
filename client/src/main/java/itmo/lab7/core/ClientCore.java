@@ -45,9 +45,14 @@ public class ClientCore {
             if (userInput.length < 1) continue;
             String[] args = Arrays.copyOfRange(userInput, 1, userInput.length);
             CommandType commandType = CommandUtils.getCommandType(userInput[0]);
-            Request request = new Request(CommandFactory.createCommand(commandType, args), name);
-            if (request.getCommand() == null) continue;
+            CommandFactory.setName(name);
+            Request request;
 
+            synchronized (CommandFactory.class) {
+                request = new Request(commandType, name, args);
+            }
+
+            if (request.getCommand() == null) continue;
             try {
                 connector.send(CommandSerializer.serialize(request));
                 String response = connector.receive();
