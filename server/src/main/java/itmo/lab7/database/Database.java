@@ -6,16 +6,11 @@ import itmo.lab7.basic.moviecollection.MovieCollection;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.utils.serializer.Serializer;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.io.*;
-import static itmo.lab7.server.UdpServer.collection;
 
 /**
  * Database class for connecting to and interacting with a database.
@@ -186,6 +181,13 @@ public class Database {
         return false;
     }
 
+    /**
+     * Inserts a movie into the collection of a user
+     *
+     * @param login the login of the user
+     * @param movie the movie to be inserted
+     * @return true if the movie was successfully inserted, false otherwise
+     */
     public boolean insertToCollection(String login, Movie movie) {
         try {
             String sql = "INSERT INTO \"collection\" (id, editor, movie, last_modified_date) VALUES (?, ?, ?, ?)";
@@ -203,11 +205,19 @@ public class Database {
         return false;
     }
 
-    public boolean removeByKey(Long key) {
+    /**
+     * Removes an item from the collection by its key and the editor's login.
+     *
+     * @param key   The key of the item to be removed.
+     * @param login The login of the editor who is removing the item.
+     * @return True if the item was removed, false otherwise.
+     */
+    public boolean removeByKey(Long key, String login) {
         try {
-            String sql = "DELETE FROM \"collection\" WHERE id = ?";
+            String sql = "DELETE FROM \"collection\" WHERE id = ? AND editor = ?";
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setLong(1, key);
+            pre.setString(2, login);
             return pre.executeUpdate() > 0;
         } catch (SQLException e) {
             // Log any errors that occur
@@ -216,10 +226,17 @@ public class Database {
         return false;
     }
 
-    public boolean clearCollection() {
+    /**
+     * Clears the collection of a given user.
+     *
+     * @param login The login of the user whose collection is to be cleared.
+     * @return True if the collection was successfully cleared, false otherwise.
+     */
+    public boolean clearCollection(String login) {
         try {
-            String sql = "DELETE FROM \"collection\"";
+            String sql = "DELETE FROM \"collection\" WHERE editor = ?";
             PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setString(1, login);
             return pre.executeUpdate() > 0;
         } catch (SQLException e) {
             // Log any errors that occur
@@ -228,6 +245,12 @@ public class Database {
         return false;
     }
 
+    /**
+     * Removes all movies from the collection with the given MPAA rating.
+     *
+     * @param username   The username of the user whose collection is being modified.
+     * @param mpaaRating The MPAA rating of the movies to be removed.
+     */
     public void removeByMpaaRating(String username, MpaaRating mpaaRating) {
         try {
             String selectSql = "SELECT id FROM \"collection\" WHERE editor = ?";
@@ -239,7 +262,6 @@ public class Database {
             while (selectResult.next()) {
                 movieIds.add(selectResult.getInt(1));
             }
-
             String deleteSql = "DELETE FROM \"collection\" WHERE id = ?";
             PreparedStatement deletePre = connection.prepareStatement(deleteSql);
             for (int id : movieIds) {
@@ -254,7 +276,14 @@ public class Database {
         }
     }
 
-    // Возвращаем только те объекты, которые были созданы пользователем.
+    /**
+     * Retrieves a movie from the collection by its ID.
+     *
+     * @param username The username of the editor of the movie.
+     * @param id       The ID of the movie.
+     * @return The movie object, or null if the movie does not exist.
+     * @throws SQLException If an error occurs while executing the query.
+     */
     private Movie getMovieById(String username, int id) throws SQLException {
         String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
         PreparedStatement pre = connection.prepareStatement(sql);
@@ -262,12 +291,16 @@ public class Database {
         pre.setString(2, username);
         ResultSet result = pre.executeQuery();
         if (result.next()) {
-            // Может, не работает.
             return (Movie) result.getArray(1).getArray();
         }
         return null;
     }
 
+    /**
+     * Retrieves the collection of movies from the database.
+     *
+     * @return A MovieCollection object containing all the movies in the database.
+     */
     public MovieCollection getCollection() {
         try {
             // Get all rows from the collection table
@@ -282,36 +315,21 @@ public class Database {
             while (resultSet.next()) {
                 // Get the id and byte array value of the movie column
                 long id = resultSet.getLong("id");
-                byte[] movieBytes = resultSet.getBytes("movie");
-
+                Array array = resultSet.getArray("movie");
+                byte[] movieBytes = (byte[]) array.getArray();
                 // Deserialize the movie object from the byte array
-                Movie movie = (Movie) deserialize(movieBytes);
+                Movie movie = (Movie) Serializer.deserialize(movieBytes);
 
                 // Add the movie object to the collection
                 collection.insert(id, movie);
             }
-
             // Return the populated MovieCollection object
             return collection;
 
         } catch (SQLException e) {
             // Log any errors that occur
             ServerLogger.getLogger().log(Level.INFO, "Unable to get collection " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
-
         return null;
     }
-
-    private Object deserialize(byte[] bytes) {
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            return ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }

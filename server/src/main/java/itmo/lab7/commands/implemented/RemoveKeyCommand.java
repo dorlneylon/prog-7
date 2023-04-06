@@ -31,7 +31,7 @@ public final class RemoveKeyCommand implements Action {
     @Override
     public Response run(String username) {
         if (UdpServer.collection.removeByKey(key)) {
-            UdpServer.getDatabase().removeByKey(key);
+            UdpServer.getDatabase().removeByKey(key, username);
             return new Response("Movie with key %d deleted successfully".formatted(key), ResponseType.SUCCESS);
         }
         return new Response("It is not possible to delete a Movie with key=%d, because there is no Movie with this key.".formatted(key), ResponseType.ERROR);

@@ -1,11 +1,9 @@
 package itmo.lab7.utils.serializer;
 
 import itmo.lab7.commands.Command;
+import itmo.lab7.server.ServerLogger;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * Serializer is used to serialize a command
@@ -40,5 +38,22 @@ public final class Serializer {
             System.err.println("Unable to close ObjectOutputStream");
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    /**
+     * Deserializes a byte array into an object.
+     *
+     * @param bytes The byte array to deserialize.
+     * @return The deserialized object.
+     */
+    public static Object deserialize(byte[] bytes) {
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            return ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            ServerLogger.getLogger().warning("Unable to deserialize " + e.getMessage());
+            return null;
+        }
     }
 }

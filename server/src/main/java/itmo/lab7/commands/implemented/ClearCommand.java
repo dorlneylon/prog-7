@@ -17,7 +17,7 @@ public final class ClearCommand implements Action {
     @Override
     public Response run(String username) {
         UdpServer.collection.clear();
-        UdpServer.getDatabase().clearCollection();
+        UdpServer.getDatabase().clearCollection(username);
         return new Response("Collection cleaned successfully", ResponseType.SUCCESS);
     }
 }

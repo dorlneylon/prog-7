@@ -3,9 +3,8 @@ package itmo.lab7.commands;
 import itmo.chunker.Chunker;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.server.UdpServer;
+import itmo.lab7.utils.serializer.Serializer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -33,13 +32,15 @@ public class CommandHandler {
      * Handles a packet received from a client.
      *
      * @param sender The address of the sender
-     * @param bytes
+     * @param bytes  The bytes of the packet
      * @throws Exception If an error occurs while handling the packet
      */
     public static void handlePacket(InetSocketAddress sender, byte[] bytes) throws Exception {
-        ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        Request request = (Request) objectInputStream.readObject();
-
+        Request request = (Request) Serializer.deserialize(bytes);
+        if (request == null) {
+            channel.send(ByteBuffer.wrap("Unable to get request.".getBytes()), sender);
+            return;
+        }
         if (!request.isUserAuthorized() && request.getCommand().getCommandType() != CommandType.SERVICE) {
             channel.send(ByteBuffer.wrap("You are not authorized to use this command.".getBytes()), sender);
             return;
