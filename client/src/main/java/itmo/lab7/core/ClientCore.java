@@ -45,7 +45,6 @@ public class ClientCore {
             if (userInput.length < 1) continue;
             String[] args = Arrays.copyOfRange(userInput, 1, userInput.length);
             CommandType commandType = CommandUtils.getCommandType(userInput[0]);
-            CommandFactory.setName(name);
             Request request;
 
             synchronized (CommandFactory.class) {

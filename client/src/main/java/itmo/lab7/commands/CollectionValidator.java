@@ -19,22 +19,23 @@ public final class CollectionValidator {
      * 1. Если команда INSERT, то проверяет, не существует ли ключ в коллекции. Если существует, то возвращает false.
      * 2. Если команда UPDATE или REPLACE_IF_LOWER, то проверяет, существует ли ключ в коллекции. Если не существует, то возвращает false.
      */
-    public static Boolean checkIfExists(CommandType command, Long key) throws Exception {
+    public static Boolean checkIfExists(Long key) throws Exception {
         connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SERVICE, "check_id %d".formatted(key)), null)));
-        Boolean receivedStatus = Boolean.parseBoolean(connector.receive());
-        if (command.equals(CommandType.INSERT)) {
-            // True if key does not exist
-            return receivedStatus;
-        } else if (command.equals(CommandType.UPDATE) || command.equals(CommandType.REPLACE_IF_LOWER)) {
-            // True if key exists
-            return !receivedStatus;
-        }
-        return false;
+        return Boolean.parseBoolean(connector.receive());
     }
 
     public static int getCollectionSize() throws Exception {
         connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SERVICE, "get_collection_size"), null)));
         return Integer.parseInt(connector.receive());
+    }
+
+    private static boolean isCommandLegit(String name, CommandType commandType, Long key) throws Exception {
+        if (commandType.equals(CommandType.INSERT)) {
+            return !checkIfExists(key);
+        } else if (commandType.equals(CommandType.UPDATE) || commandType.equals(CommandType.REPLACE_IF_LOWER)) {
+            return checkIfExists(key) && isUserCreator(name, key);
+        }
+        return true;
     }
 
     public static Boolean isMovieValid(CommandType type, String name, String[] args) {
@@ -45,12 +46,8 @@ public final class CollectionValidator {
         long key;
         try {
             key = Long.parseLong(args[0]);
-            if (checkIfExists(type, key)) {
-                System.err.println("Key " + key + " is not compatible with the command " + type.name() + ".");
-                return false;
-            }
-            if (!isUserCreator(name, key)) {
-                System.err.println("You are not the creator of the movie with id = " + key + ".");
+            if (!isCommandLegit(name, type, key)) {
+                System.err.println("Key " + key + " is not compatible with the command " + type.name() + " for you.");
                 return false;
             }
         } catch (Exception e) {
