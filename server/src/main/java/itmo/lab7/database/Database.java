@@ -2,6 +2,7 @@ package itmo.lab7.database;
 
 import itmo.lab7.basic.baseclasses.Movie;
 import itmo.lab7.basic.baseenums.MpaaRating;
+import itmo.lab7.basic.moviecollection.MovieCollection;
 import itmo.lab7.server.ServerLogger;
 import itmo.lab7.utils.serializer.Serializer;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-
+import java.io.*;
 import static itmo.lab7.server.UdpServer.collection;
 
 /**
@@ -54,7 +55,7 @@ public class Database {
         byte flags = 0; // last 2 digits are flags
         try {
             // Hash the password using SHA-256
-            String encryptedPassword = hashPassword(password);
+            String encryptedPassword = Encryptor.encryptString(password);
 
             // Create a prepared statement to insert a new user into the users table
             PreparedStatement userStatement = connection.prepareStatement("INSERT INTO \"user\" (login, password) VALUES (?, ?)");
@@ -171,7 +172,7 @@ public class Database {
      */
     public boolean userSignIn(String login, String password) {
         try {
-            String hashedPassword = hashPassword(password);
+            String hashedPassword = Encryptor.encryptString(password);
             String sql = "SELECT * FROM \"user\" WHERE login = ? AND password = ?";
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setString(1, login);
@@ -183,23 +184,6 @@ public class Database {
             ServerLogger.getLogger().log(Level.INFO, "Unable to check user " + e.getMessage());
         }
         return false;
-    }
-
-    private static String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            ServerLogger.getLogger().log(Level.INFO, "Unable to hash password " + e.getMessage());
-        }
-        return null;
     }
 
     public boolean insertToCollection(String login, Movie movie) {
@@ -283,4 +267,51 @@ public class Database {
         }
         return null;
     }
+
+    public MovieCollection getCollection() {
+        try {
+            // Get all rows from the collection table
+            String sql = "SELECT id, movie FROM \"collection\"";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            // Create a new MovieCollection object to hold the results
+            MovieCollection collection = new MovieCollection();
+
+            // Iterate over each row in the result set
+            while (resultSet.next()) {
+                // Get the id and byte array value of the movie column
+                long id = resultSet.getLong("id");
+                byte[] movieBytes = resultSet.getBytes("movie");
+
+                // Deserialize the movie object from the byte array
+                Movie movie = (Movie) deserialize(movieBytes);
+
+                // Add the movie object to the collection
+                collection.insert(id, movie);
+            }
+
+            // Return the populated MovieCollection object
+            return collection;
+
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to get collection " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+
+    private Object deserialize(byte[] bytes) {
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            return ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -6,7 +6,6 @@ import itmo.lab7.connection.Response;
 public class HistoryCommand implements Executable {
     @Override
     public Response execute() {
-
         return null;
     }
 }

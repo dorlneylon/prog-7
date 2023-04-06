@@ -40,7 +40,7 @@ public class CommandHandler {
         ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
         Request request = (Request) objectInputStream.readObject();
 
-        if (!request.isUserAuthorized()) {
+        if (!request.isUserAuthorized() && request.getCommand().getCommandType() != CommandType.SERVICE) {
             channel.send(ByteBuffer.wrap("You are not authorized to use this command.".getBytes()), sender);
             return;
         }

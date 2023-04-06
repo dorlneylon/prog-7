@@ -75,10 +75,10 @@ public class Connector {
         Chunker dataChunker = new Chunker(dataBytes, chunkSize);
         var chunkIterator = dataChunker.newIterator();
         short totalChunks = (short) ((int) Math.ceil((double) dataBytes.length / (double) this.chunkSize));
-        AtomicInteger c = new AtomicInteger(0);
+        int c = 0;
         while (chunkIterator.hasNext()) {
-            if (c.incrementAndGet() % 50 == 0) {
-                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, c.get(), totalChunks);
+            if (++c % 50 == 0) {
+                System.out.printf("%sSending chunks:%s %d/%d kb\r", Colors.AsciiPurple, Colors.AsciiReset, c, totalChunks);
                 Thread.sleep(100);
             }
             byte[] chunk = chunkIterator.next();

@@ -29,14 +29,15 @@ public class ClientCore {
     }
 
     public void run() {
+        Scanner scanner = new Scanner(System.in);
+        String[] userInput;
+
         try {
-//            this.name = Authenthicator.authorize(connector);
+            this.name = Authenthicator.authorize(scanner, connector);
         } catch (Exception e) {
             System.err.println("Unable to authorize: " + e.getMessage());
             return;
         }
-        Scanner scanner = new Scanner(System.in);
-        String[] userInput;
 
         while (true) {
             System.out.print("Enter command: ");
@@ -63,7 +64,7 @@ public class ClientCore {
                         if (i * chunkSize + chunkSize >= collectionSize) break;
                         System.out.print("Do you want to continue? (y/n): ");
                         if (!scanner.nextLine().equalsIgnoreCase("y")) break;
-                        connector.send(CommandSerializer.serialize(new Command(CommandType.SHOW, chunkSize * (i + 1))));
+                        connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SHOW, chunkSize * (i + 1)), name)));
                         response = connector.receive();
                     }
                     continue;

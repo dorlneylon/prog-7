@@ -49,22 +49,25 @@ public class ServerMain {
 
     public static void main(String[] args) {
         MovieCollection collection;
-        try {
-            collection = new Xml(new File(collectionFileName)).newReader().parse();
-        } catch (IOException e) {
-            System.err.println("Unable to find collection file " + collectionFileName);
-            System.err.println("New collection file will be created automatically after a few changes.");
-            collection = new MovieCollection();
-        }
+//        try {
+//            collection = new Xml(new File(collectionFileName)).newReader().parse();
+//        } catch (IOException e) {
+//            System.err.println("Unable to find collection file " + collectionFileName);
+//            System.err.println("New collection file will be created automatically after a few changes.");
+//            collection = new MovieCollection();
+//        }
         Database db = null;
 
-//        try {
-//            db = new Database(url, user, password);
-//        } catch (SQLException e) {
-//            System.err.println(e.getMessage());
-//            System.exit(1);
-//        }
-        // db.addNewUser("kxrxh", "kxrxh");
+        try {
+            db = new Database(url, user, password);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+
+        collection = db.getCollection();
+
+                // db.addNewUser("kxrxh", "kxrxh");
 //        System.out.println(db.userSignIn("kxrxh", "kxrxh"));
 
 //        db.addCommandToHistory("kxrxh", "INSERT");

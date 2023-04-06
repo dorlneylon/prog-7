@@ -20,7 +20,7 @@ public final class CollectionValidator {
      * 2. Если команда UPDATE или REPLACE_IF_LOWER, то проверяет, существует ли ключ в коллекции. Если не существует, то возвращает false.
      */
     public static Boolean checkIfExists(CommandType command, Long key) throws Exception {
-        connector.send(CommandSerializer.serialize(new Command(CommandType.SERVICE, "check_id %d".formatted(key))));
+        connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SERVICE, "check_id %d".formatted(key)), null)));
         Boolean receivedStatus = Boolean.parseBoolean(connector.receive());
         if (command.equals(CommandType.INSERT)) {
             // True if key does not exist
@@ -33,7 +33,7 @@ public final class CollectionValidator {
     }
 
     public static int getCollectionSize() throws Exception {
-        connector.send(CommandSerializer.serialize(new Command(CommandType.SERVICE, "get_collection_size")));
+        connector.send(CommandSerializer.serialize(new Request(new Command(CommandType.SERVICE, "get_collection_size"), null)));
         return Integer.parseInt(connector.receive());
     }
 
