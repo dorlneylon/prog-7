@@ -66,7 +66,7 @@ public class UdpHandler implements Runnable {
                 } catch (IOException ignore) {
                 }
                 // Log the error
-                ServerLogger.getLogger().warning("UdpHandler: " + e.getMessage());
+                ServerLogger.getLogger().warning("UdpHandler: " + e);
             } finally {
                 UdpServer.getChunkLists().remove(clientAddress);
             }

@@ -6,6 +6,7 @@ import itmo.lab7.server.UdpServer;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * The abstract class {@code MHMap} is a wrapper for the {@code HashMap} class.
@@ -178,11 +179,7 @@ public abstract class MHMap<K, V> {
      * The map will be empty after this call returns.
      */
     public void clear(String user) {
-        for (K key : this.map.keySet()) {
-            if (UdpServer.getDatabase().isUserEditor(user, Math.toIntExact((Long) key))) {
-                this.map.remove(key);
-            }
-        }
+        this.map.keySet().removeIf(key -> UdpServer.getDatabase().isUserEditor(user, Math.toIntExact((Long) key)));
     }
 
 
