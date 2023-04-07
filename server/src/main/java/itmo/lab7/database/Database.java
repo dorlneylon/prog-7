@@ -149,7 +149,7 @@ public class Database {
             PreparedStatement pre = connection.prepareStatement(sql);
             pre.setString(1, login);
             ResultSet result = pre.executeQuery();
-            if (result.next()) return (String[])result.getArray(1).getArray();
+            if (result.next()) return (String[]) result.getArray(1).getArray();
         } catch (SQLException e) {
             // Log any errors that occur
             ServerLogger.getLogger().log(Level.INFO, "Unable to get command history " + e.getMessage());
@@ -333,25 +333,35 @@ public class Database {
         return null;
     }
 
-    public boolean updateById(String username, int id, Movie movie) throws SQLException {
-        String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
-        PreparedStatement pre = connection.prepareStatement(sql);
-        pre.setInt(1, id);
-        pre.setString(2, username);
-        ResultSet result = pre.executeQuery();
-        if (result.next())
-            return removeByKey((long) id, username) && insertToCollection(username, movie);
-
+    public boolean updateById(String username, int id, Movie movie) {
+        try {
+            String sql = "UPDATE \"collection\" SET movie = ? WHERE id = ? AND editor = ?";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setBytes(1, Serializer.serialize(movie));
+            pre.setInt(2, id);
+            pre.setString(3, username);
+            pre.execute();
+            return true;
+        } catch (SQLException sqle) {
+            // Log any errors that occur
+            ServerLogger.getLogger().log(Level.INFO, "Unable to update by id " + sqle.getMessage());
+        }
         return false;
     }
 
-    public boolean isUserEditor(String username, int id) throws SQLException {
-        String sql = "SELECT movie FROM \"collection\" WHERE id = ? AND editor = ?";
-        PreparedStatement pre = connection.prepareStatement(sql);
-        pre.setInt(1, id);
-        pre.setString(2, username);
-        ResultSet result = pre.executeQuery();
-        return result.next();
+    public boolean isUserEditor(String username, int id) {
+        try {
+            String sql = "SELECT id FROM \"collection\" WHERE id = ? AND editor = ?";
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            pre.setString(2, username);
+            ResultSet result = pre.executeQuery();
+            return result.next();
+        } catch (SQLException e) {
+            // Log any errors that occur
+            ServerLogger.getLogger().warning("Unable to check editor " + e.getMessage());
+        }
+        return false;
     }
 
     /**

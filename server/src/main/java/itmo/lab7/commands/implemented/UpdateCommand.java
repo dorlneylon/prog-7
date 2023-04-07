@@ -35,12 +35,8 @@ public class UpdateCommand implements Action {
         if (!collection.isKeyPresented(movie.getId()))
             return new Response("Collection does not contain such a key", ResponseType.ERROR);
 
-        try {
-            collection.update(movie);
-            UdpServer.getDatabase().updateById(username, Math.toIntExact(movie.getId()), movie);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        collection.update(movie);
+        UdpServer.getDatabase().updateById(username, Math.toIntExact(movie.getId()), movie);
 
         return new Response("Update was completed successfully", ResponseType.SUCCESS);
     }

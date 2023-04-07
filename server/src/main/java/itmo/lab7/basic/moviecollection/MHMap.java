@@ -1,6 +1,7 @@
 package itmo.lab7.basic.moviecollection;
 
 import itmo.lab7.server.ServerLogger;
+import itmo.lab7.server.UdpServer;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -176,8 +177,12 @@ public abstract class MHMap<K, V> {
      * Removes all the mappings from this map.
      * The map will be empty after this call returns.
      */
-    public void clear() {
-        this.map.clear();
+    public void clear(String user) {
+        for (K key : this.map.keySet()) {
+            if (UdpServer.getDatabase().isUserEditor(user, Math.toIntExact((Long) key))) {
+                this.map.remove(key);
+            }
+        }
     }
 
 

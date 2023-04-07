@@ -2,7 +2,7 @@ package itmo.lab7.core;
 
 import itmo.lab7.basic.utils.serializer.CommandSerializer;
 import itmo.lab7.commands.*;
-import itmo.lab7.connection.Authenthicator;
+import itmo.lab7.connection.Authenticator;
 import itmo.lab7.connection.Connector;
 
 import java.net.InetAddress;
@@ -33,7 +33,7 @@ public class ClientCore {
         String[] userInput;
 
         try {
-            this.name = Authenthicator.authorize(scanner, connector);
+            this.name = Authenticator.authorize(scanner, connector);
         } catch (Exception e) {
             System.err.println("Unable to authorize: " + e.getMessage());
             return;
