@@ -32,20 +32,7 @@ public class Request implements Serializable {
      * @param command The command to be executed.
      */
     public Request(Command command) {
-        this(command, null);
-    }
-
-    /**
-     * Constructor for the Request class.
-     *
-     * @param commandType The type of command to be created.
-     * @param name        The name of the user making the request.
-     * @param arguments   The arguments to be passed to the command.
-     */
-    public Request(CommandType commandType, String name, String[] arguments) {
-        CommandFactory.setName(name);
-        this.command = CommandFactory.createCommand(commandType, arguments);
-        this.login = name;
+        this(command, CommandFactory.getName());
     }
 
     /**

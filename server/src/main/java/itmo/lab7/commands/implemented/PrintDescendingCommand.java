@@ -6,6 +6,7 @@ import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static itmo.lab7.server.UdpServer.collection;
 import static java.lang.Math.min;
@@ -41,9 +42,17 @@ public final class PrintDescendingCommand implements Action {
      */
     @Override
     public Response run(String username) {
-        if (collection.size() == 0) return new Response("Collection is empty", ResponseType.SUCCESS);
+        if (collection.size() == 0)
+            return new Response("Collection is empty", ResponseType.SUCCESS);
 
-        String message = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.getSortedMovies(true)).toList().subList(index, min(index + 20, collection.size())).toString().replace("., ", ",\n"));
+        List<String> movieStrings = Arrays.stream(collection.getSortedMovies(true)).
+                map(movie -> movie.toString(username))
+                .toList();
+
+        String message = MessagePainter.ColoredInfoMessage(movieStrings
+                .subList(index, min(index + 20, collection.size())).toString()
+                .replace("., ", ",\n"));
+
         return new Response(message.substring(1, message.length() - 1), ResponseType.INFO);
     }
 }

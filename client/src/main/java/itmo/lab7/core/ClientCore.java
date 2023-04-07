@@ -33,7 +33,7 @@ public class ClientCore {
         String[] userInput;
 
         try {
-            this.name = Authenticator.authorize(scanner, connector);
+            CommandFactory.setName(this.name = Authenticator.authorize(scanner, connector));
         } catch (Exception e) {
             System.err.println("Unable to authorize: " + e.getMessage());
             return;
@@ -45,11 +45,7 @@ public class ClientCore {
             if (userInput.length < 1) continue;
             String[] args = Arrays.copyOfRange(userInput, 1, userInput.length);
             CommandType commandType = CommandUtils.getCommandType(userInput[0]);
-            Request request;
-
-            synchronized (CommandFactory.class) {
-                request = new Request(commandType, name, args);
-            }
+            Request request = new Request(CommandFactory.createCommand(commandType, args));
 
             if (request.getCommand() == null) continue;
             try {

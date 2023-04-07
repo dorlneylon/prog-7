@@ -1,11 +1,14 @@
 package itmo.lab7.commands.implemented;
 
+import itmo.lab7.basic.baseclasses.Movie;
 import itmo.lab7.commands.Action;
 import itmo.lab7.server.response.MessagePainter;
 import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static itmo.lab7.server.UdpServer.collection;
 import static java.lang.Math.min;
@@ -54,10 +57,16 @@ public class ShowCommand implements Action {
     public Response run(String username) {
         if (collection.isEmpty()) return new Response("Collection is empty", ResponseType.SUCCESS);
 
-        String test = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.values()).toList().toString().replace("., ", ",\n"));
-        if (isScript) return new Response(test.substring(1, test.length() - 1), ResponseType.INFO);
+        List<String> movieStrings = Arrays.stream(collection.values()).
+                map(movie -> movie.toString(username))
+                .toList();
 
-        String message = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.values()).toList().subList(index, min(index + 20, collection.size())).toString().replace("., ", ",\n"));
+        if (isScript) {
+            String test = MessagePainter.ColoredInfoMessage(movieStrings.toString().replace("., ", ",\n"));
+            return new Response(test.substring(1, test.length() - 1), ResponseType.INFO);
+        }
+
+        String message = MessagePainter.ColoredInfoMessage(movieStrings.subList(index, min(index + 20, collection.size())).toString().replace("., ", ",\n"));
         return new Response(message.substring(1, message.length() - 1), ResponseType.INFO);
     }
 }

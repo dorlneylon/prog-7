@@ -144,4 +144,8 @@ public final class CommandFactory {
         }
         return movie;
     }
+
+    public static String getName() {
+        return name;
+    }
 }

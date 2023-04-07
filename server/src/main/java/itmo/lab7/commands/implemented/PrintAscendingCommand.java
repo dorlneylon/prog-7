@@ -6,6 +6,7 @@ import itmo.lab7.server.response.Response;
 import itmo.lab7.server.response.ResponseType;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static itmo.lab7.server.UdpServer.collection;
 import static java.lang.Math.min;
@@ -45,13 +46,14 @@ public final class PrintAscendingCommand implements Action {
         if (collection.size() == 0)
             return new Response("Collection is empty", ResponseType.SUCCESS);
 
-        // Create a message using the MessagePainter class and the collection's sorted movies
-        String message = MessagePainter.ColoredInfoMessage(Arrays.stream(collection.getSortedMovies(false)).toList()
-                // Get a sublist of the collection from the index to the min of the index + 20 or the collection size
+        List<String> movieStrings = Arrays.stream(collection.getSortedMovies(false)).
+                map(movie -> movie.toString(username))
+                .toList();
+
+        String message = MessagePainter.ColoredInfoMessage(movieStrings
                 .subList(index, min(index + 20, collection.size())).toString()
-                // Replace the period and comma with a comma and a new line
                 .replace("., ", ",\n"));
-        // Return an info response with the message, minus the first and last characters
+
         return new Response(message.substring(1, message.length() - 1), ResponseType.INFO);
     }
 }

@@ -3,7 +3,8 @@ package itmo.lab7.basic.baseclasses;
 import itmo.lab7.basic.baseclasses.builders.annotations.Generated;
 import itmo.lab7.basic.baseenums.MovieGenre;
 import itmo.lab7.basic.baseenums.MpaaRating;
-
+import itmo.lab7.server.UdpServer;
+import itmo.lab7.server.response.Color;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
@@ -315,6 +316,17 @@ public class Movie implements Comparable<Movie>, Serializable {
     @Override
     public String toString() {
         return id + ".\n"
+                + "Film's title: " + name + ",\n"
+                + "Film's coords: " + coordinates + ",\n"
+                + "Creation Date: " + creationDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + ",\n"
+                + "Number of Oscars: " + oscarsCount + ",\n"
+                + "Genre: " + genre + ",\n"
+                + "Mpaa rating: " + mpaaRating + ",\n"
+                + director.toString();
+    }
+
+    public String toString(String username) {
+        return id + ". " + (UdpServer.getDatabase().isUserEditor(username, Math.toIntExact(id)) ? Color.GREEN + "[modifiable]" + Color.RESET : "") + "\n"
                 + "Film's title: " + name + ",\n"
                 + "Film's coords: " + coordinates + ",\n"
                 + "Creation Date: " + creationDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + ",\n"
