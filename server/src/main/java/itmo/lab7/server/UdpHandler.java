@@ -1,11 +1,11 @@
 package itmo.lab7.server;
 
 import itmo.chunker.ChuckReceiver;
-import itmo.lab7.commands.Request;
+import itmo.chunker.Chunker;
+import itmo.lab7.server.response.Response;
+import itmo.lab7.server.response.ResponseType;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -58,11 +58,15 @@ public class UdpHandler implements Runnable {
             } catch (Exception e) {
                 // If something goes wrong, send an error message to the client
                 try {
-                    keyChannel.send(ByteBuffer.wrap("ERROR: Something went wrong...".getBytes()), clientAddress);
+                    Chunker chunker = new Chunker(new Response("ServerError: " + e.getMessage(), ResponseType.ERROR).getMessage().getBytes());
+                    var iterator = chunker.newIterator();
+                    while (iterator.hasNext()) {
+                        keyChannel.send(ByteBuffer.wrap(iterator.next()), clientAddress);
+                    }
                 } catch (IOException ignore) {
                 }
                 // Log the error
-                ServerLogger.getLogger().warning(e.toString());
+                ServerLogger.getLogger().warning("UdpHandler: " + e);
             } finally {
                 UdpServer.getChunkLists().remove(clientAddress);
             }

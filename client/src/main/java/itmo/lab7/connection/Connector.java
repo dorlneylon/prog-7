@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Connector is used to connect to a remote server
@@ -23,7 +22,7 @@ public class Connector {
     private static DatagramSocket socket;
     private final InetAddress address;
     private final int port;
-    private final static int socketTimeout = 16000;
+    private static final int socketTimeout = 32000;
 
     private int chunkSize;
 
@@ -91,16 +90,22 @@ public class Connector {
      * Receives bytes from remote server and transforms them into string
      *
      * @return string message
-     * @throws IOException Receiving exception
      */
-    public String receive() throws IOException {
+    public String receive() {
         ChuckReceiver receiver = new ChuckReceiver();
         byte[] buffer = new byte[chunkSize + 4];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        System.out.print(" ".repeat(3) + "\r");
+        System.out.print(Colors.AsciiPurple + "Receiving..." + Colors.AsciiReset);
         do {
-            socket.receive(packet);
+            try {
+                socket.receive(packet);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             receiver.add(Arrays.copyOf(packet.getData(), packet.getLength()));
         } while (!receiver.isReceived());
+        System.out.print("\r");
         return new String(receiver.getAllChunks(), StandardCharsets.UTF_8);
     }
 }

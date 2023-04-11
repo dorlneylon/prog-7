@@ -49,13 +49,6 @@ public class ServerMain {
 
     public static void main(String[] args) {
         MovieCollection collection;
-//        try {
-//            collection = new Xml(new File(collectionFileName)).newReader().parse();
-//        } catch (IOException e) {
-//            System.err.println("Unable to find collection file " + collectionFileName);
-//            System.err.println("New collection file will be created automatically after a few changes.");
-//            collection = new MovieCollection();
-//        }
         Database db = null;
 
         try {
@@ -67,12 +60,6 @@ public class ServerMain {
 
         collection = db.getCollection();
 
-                // db.addNewUser("kxrxh", "kxrxh");
-//        System.out.println(db.userSignIn("kxrxh", "kxrxh"));
-
-//        db.addCommandToHistory("kxrxh", "INSERT");
-//        db.addCommandToHistory("kxrxh", "ADD");
-//        System.out.println(Arrays.toString(db.getCommandHistory("kxrxh")));
         UdpServer server = new UdpServer(db, collection, serverPort);
         server.run();
     }

@@ -23,6 +23,6 @@ public final class HistoryCommand implements Action {
 
     @Override
     public Response run(String username) {
-        return new Response(Color.GREEN + Arrays.stream(UdpServer.getDatabase().getCommandHistory(username)).reduce("", (s1, s2) -> s1 + "\n" + s2) + Color.RESET, ResponseType.INFO);
+        return new Response(Color.PURPLE + "Command history:\n" + Color.RESET + Arrays.stream(UdpServer.getDatabase().getCommandHistory(username)).reduce("", (a, b) -> a + "\n" + b).substring(1), ResponseType.INFO);
     }
 }

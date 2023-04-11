@@ -1,10 +1,12 @@
 package itmo.lab7.basic.moviecollection;
 
 import itmo.lab7.server.ServerLogger;
+import itmo.lab7.server.UdpServer;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * The abstract class {@code MHMap} is a wrapper for the {@code HashMap} class.
@@ -176,8 +178,8 @@ public abstract class MHMap<K, V> {
      * Removes all the mappings from this map.
      * The map will be empty after this call returns.
      */
-    public void clear() {
-        this.map.clear();
+    public void clear(String user) {
+        this.map.keySet().removeIf(key -> UdpServer.getDatabase().isUserEditor(user, Math.toIntExact((Long) key)));
     }
 
 
